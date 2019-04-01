@@ -6,10 +6,11 @@
 </head>
 <body>
 <script>
+    var host = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
     <#list downloadFileList as downloadFileList>
-                window.open("http://localhost:8080/downloadFile/${downloadFileList}");
+                window.open(host + "/downloadFile/${downloadFileList}");
     </#list>
-    window.open("http://localhost:8080/console");
+    window.open(host + "/console");
 </script>
 </body>
 </html>
