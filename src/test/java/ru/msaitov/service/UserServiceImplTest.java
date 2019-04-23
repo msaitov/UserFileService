@@ -19,7 +19,7 @@ public class UserServiceImplTest extends MockInit {
     private EmailService emailService = mock(EmailService.class);
     private UserRepository userRepository = mock(UserRepository.class);
     private VerificationTokenRepository tokenRepository = mock(VerificationTokenRepository.class);
-    private UserServiceImpl userService = new UserServiceImpl(emailService, userRepository, tokenRepository, mapper, logger);
+    private UserServiceImpl userService = new UserServiceImpl(emailService, userRepository, tokenRepository, mapper);
     private UserServiceImpl userServiceSpy = Mockito.spy(userService);
 
 

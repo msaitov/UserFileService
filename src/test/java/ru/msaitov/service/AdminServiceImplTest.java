@@ -29,7 +29,7 @@ public class AdminServiceImplTest extends MockInit {
     private UserRepository userRepository = mock(UserRepository.class);
     private UserAccessRequest accessRequest = mock(UserAccessRequest.class);
     private StorageFileService storageFileService = mock(StorageFileService.class);
-    private AdminServiceImpl adminService = new AdminServiceImpl(userRepository, accessRequest, storageFileService, mapper, logger, listFiles);
+    private AdminServiceImpl adminService = new AdminServiceImpl(userRepository, accessRequest, storageFileService, mapper, listFiles);
 
 
     @Test

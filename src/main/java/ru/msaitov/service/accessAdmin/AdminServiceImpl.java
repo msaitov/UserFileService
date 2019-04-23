@@ -1,6 +1,7 @@
 package ru.msaitov.service.accessAdmin;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,18 +30,17 @@ public class AdminServiceImpl implements AdminService {
 
     private final Mapper mapper;
 
-    private static Logger logger;
+    private static Logger logger = LogManager.getFormatterLogger(AdminServiceImpl.class);
+
     private Map<UserView, DtoOutListFiles> listFiles;
 
     @Autowired
-    public AdminServiceImpl(UserRepository userRepository, UserAccessRequest accessRequest, StorageFileService storageFileService, Mapper mapper, Logger logger, Map<UserView, DtoOutListFiles> listFiles) {
+    public AdminServiceImpl(UserRepository userRepository, UserAccessRequest accessRequest, StorageFileService storageFileService, Mapper mapper, Map<UserView, DtoOutListFiles> listFiles) {
         this.userRepository = userRepository;
         this.accessRequest = accessRequest;
         this.storageFileService = storageFileService;
         this.mapper = mapper;
         this.listFiles = listFiles;
-        AdminServiceImpl.logger = logger;
-
     }
 
     /**
@@ -48,7 +48,7 @@ public class AdminServiceImpl implements AdminService {
      */
     @Override
     public List<String> getAllEnabledUser(UserView userViewExclude) {
-        logger.info("[SERVICE] getAllEnabledUser");
+        logger.info("[SERVICE] method: getAllEnabledUser, Получить список все активированныз пользователей");
         List<UserEntity> userEntityList = userRepository.findAll();
         List<String> userViewListEmail = new ArrayList<>();
         for (UserEntity userEntity : userEntityList) {
@@ -64,7 +64,7 @@ public class AdminServiceImpl implements AdminService {
      */
     @Override
     public void setListFiles(List<String> listViewUser, UserView userRequest) {
-        logger.info("[SERVICE] setListFiles");
+        logger.info("[SERVICE] method: setListFiles, Установить список файлов");
         DtoOutListFiles dtoOutListFiles = new DtoOutListFiles();
         dtoOutListFiles.setListFiles(Collections.emptyList());
         listFiles.put(userRequest, dtoOutListFiles);
@@ -86,7 +86,7 @@ public class AdminServiceImpl implements AdminService {
      */
     @Override
     public DtoOutListFiles getListFiles(UserView userRequest) {
-        logger.info("[SERVICE] getListFiles");
+        logger.info("[SERVICE] method: getListFiles, Получить список файлов");
         DtoOutListFiles dtoOutListFiles = this.listFiles.get(userRequest);
         return dtoOutListFiles;
     }

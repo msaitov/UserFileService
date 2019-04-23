@@ -1,6 +1,7 @@
 package ru.msaitov.controller;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -23,12 +24,11 @@ public class MyAccessController {
 
     private final UserAccess userAccess;
 
-    private static Logger logger;
+    private static Logger logger = LogManager.getFormatterLogger(MyAccessController.class);
 
     @Autowired
-    public MyAccessController(UserAccess userAccess, Logger logger) {
+    public MyAccessController(UserAccess userAccess) {
         this.userAccess = userAccess;
-        MyAccessController.logger = logger;
     }
 
     /**
@@ -40,7 +40,7 @@ public class MyAccessController {
      */
     @GetMapping("/myAccess")
     public String getMyAccess(@AuthenticationPrincipal UserView userView, Model model) {
-        logger.info("[CONTROLLER] getMyAccess");
+        logger.info("[CONTROLLER] method: getMyAccess, Мой доступ");
         List<String> listGaveAccess = userAccess.getListEmailAccess(userView);
         model.addAttribute("listGaveAccess", listGaveAccess);
 
@@ -61,7 +61,7 @@ public class MyAccessController {
     @PostMapping("/gaveAccessAction")
     public String PostDeniedAccess(@RequestParam List<String> gaveAccessValues,
                                    @AuthenticationPrincipal UserView userOwn) {
-        logger.info("[CONTROLLER] PostDeniedAccess");
+        logger.info("[CONTROLLER] method: PostDeniedAccess, Дать доступ другому пользователю");
         userAccess.accessDinied(gaveAccessValues, userOwn);
         return "redirect:/myAccess";
     }
@@ -75,7 +75,7 @@ public class MyAccessController {
      */
     @GetMapping("/listUser")
     public String getListUser(Model model, @AuthenticationPrincipal UserView userViewExclude) {
-        logger.info("[CONTROLLER] getListUser");
+        logger.info("[CONTROLLER] method: getListUser, Список всех пользователей");
         List<String> userListEnabledEmail = userAccess.getAllEnabledUser(userViewExclude);
         int userCount = userListEnabledEmail.size();
         model.addAttribute("requestedAccess", userListEnabledEmail);
@@ -95,7 +95,7 @@ public class MyAccessController {
     public String PostRequestAccessAction(@RequestParam List<String> requestedAccessValue,
                                           @AuthenticationPrincipal UserView userOwn,
                                           String downloadAccess) {
-        logger.info("[CONTROLLER] PostRequestAccessAction");
+        logger.info("[CONTROLLER] method: PostRequestAccessAction, Обработка формы: Дал доступ");
         if (requestedAccessValue == null) {
             return "access/listUser";
         }
@@ -114,7 +114,7 @@ public class MyAccessController {
     @RequestMapping(value = "requestedAccessAction", method = RequestMethod.POST, params = "giveAccess")
     public String postRequestGiveAccess(@RequestParam List<String> requestedAccessValues,
                                         @AuthenticationPrincipal UserView userOwn) {
-        logger.info("[CONTROLLER] postRequestGiveAccess");
+        logger.info("[CONTROLLER] method: postRequestGiveAccess, Обработка кнопки: дать доступ");
         userAccess.statusChangeAccessDenied(requestedAccessValues, userOwn, "giveAccess");
         return "redirect:/myAccess";
 
@@ -130,7 +130,7 @@ public class MyAccessController {
     @RequestMapping(value = "requestedAccessAction", method = RequestMethod.POST, params = "denyAccess")
     public String postRequestDenyAccess(@RequestParam List<String> requestedAccessValues,
                                         @AuthenticationPrincipal UserView userOwn) {
-        logger.info("[CONTROLLER] postRequestDenyAccess");
+        logger.info("[CONTROLLER] method: postRequestDenyAccess, Обработка кнопки: отказать в доступе");
         userAccess.statusChangeAccessDenied(requestedAccessValues, userOwn, "denyAccess");
         return "redirect:/myAccess";
     }

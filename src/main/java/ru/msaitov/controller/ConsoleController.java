@@ -1,6 +1,7 @@
 package ru.msaitov.controller;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -40,15 +41,13 @@ public class ConsoleController {
 
     private final DownloadedStatisticService statisticService;
 
-    private static Logger logger;
+    private static Logger logger = LogManager.getFormatterLogger(ConsoleController.class);
 
     @Autowired
     public ConsoleController(StorageFileService storageFileService,
-                             DownloadedStatisticService statisticService,
-                             Logger logger) {
+                             DownloadedStatisticService statisticService) {
         this.storageFileService = storageFileService;
         this.statisticService = statisticService;
-        ConsoleController.logger = logger;
     }
 
     /**
@@ -60,7 +59,7 @@ public class ConsoleController {
      */
     @GetMapping("/console")
     public String getConsole(Model model, @AuthenticationPrincipal UserView userView) {
-        logger.info("[CONTROLLER] getConsole");
+        logger.info("[CONTROLLER] getConsole, Главная консоль программы");
         List<String> listFiles = storageFileService.getListFiles(userView);
         model.addAttribute("listFiles", listFiles);
         if (userView.getRoles().contains(Role.ANALYST)) {
@@ -90,7 +89,7 @@ public class ConsoleController {
     @ResponseBody
     public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file,
                                          @AuthenticationPrincipal UserView userView) {
-        logger.info("[CONTROLLER] uploadFile");
+        logger.info("[CONTROLLER] uploadFile, закачка файла на сервер");
         String fileName = storageFileService.storeFile(file, userView);
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -114,7 +113,7 @@ public class ConsoleController {
     @ResponseBody
     public List<UploadFileResponse> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files,
                                                         @AuthenticationPrincipal UserView userView) {
-        logger.info("[CONTROLLER] uploadMultipleFiles");
+        logger.info("[CONTROLLER] method: uploadMultipleFiles, закачка файлов на сервер");
         List<UploadFileResponse> uploadFileResponses = Arrays.asList(files)
                 .stream()
                 .map(file -> uploadFile(file, userView))
@@ -129,7 +128,7 @@ public class ConsoleController {
      */
     @PostMapping("/refresh")
     public String refresh() {
-        logger.info("[CONTROLLER] refresh");
+        logger.info("[CONTROLLER] method: refresh, Обновить страницу");
         return "redirect:/console";
     }
 
@@ -145,7 +144,7 @@ public class ConsoleController {
     @ResponseBody
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request,
                                                  @AuthenticationPrincipal UserView userView) {
-        logger.info("[CONTROLLER] downloadFile");
+        logger.info("[CONTROLLER] method downloadFile, Загрузка файлов с сервера");
         Resource resource = storageFileService.loadFileAsResource(fileName, userView);
 
         String contentType = null;
@@ -153,7 +152,7 @@ public class ConsoleController {
             contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
         } catch (IOException ex) {
             logger.error("[CONTROLLER] Could not determine file type");
-            throw new RuntimeException("Could not determine file type");
+            throw new RuntimeException("Could not determine file type", ex);
         }
 
         if (contentType == null) {
@@ -171,7 +170,7 @@ public class ConsoleController {
 
     @GetMapping("/operationFiles")
     public String getOperationFiles() {
-        logger.info("[CONTROLLER] getOperationFiles");
+        logger.info("[CONTROLLER] method: getOperationFiles");
         return "console";
     }
 
@@ -185,7 +184,7 @@ public class ConsoleController {
     @RequestMapping(value = "/operationFiles", method = RequestMethod.POST, params = "deleteFls")
     public String postDeleteFiles(@RequestParam List<String> searchValues,
                                   @AuthenticationPrincipal UserView userView) {
-        logger.info("[CONTROLLER] postDeleteFiles");
+        logger.info("[CONTROLLER] method: postDeleteFiles, Удаления файлов");
         if (searchValues != null && searchValues.size() > 0) {
             storageFileService.deleteFiles(searchValues, userView);
             return "redirect:/console";
@@ -200,7 +199,7 @@ public class ConsoleController {
      */
     @RequestMapping(value = "/operationFiles", method = RequestMethod.POST, params = "downloadFls")
     public String postDownloadFiles() {
-        logger.info("[CONTROLLER] postDownloadFiles");
+        logger.info("[CONTROLLER] method: postDownloadFiles, Обработка списка загрузки файлов");
         return "redirect:/console";
     }
 

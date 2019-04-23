@@ -2,7 +2,6 @@ package ru.msaitov.service;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
 import ru.msaitov.model.DownloadedStatisticEntity;
 import ru.msaitov.model.UserEntity;
 import ru.msaitov.model.mapper.Mapper;
@@ -20,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -35,8 +32,7 @@ public class DownloadedStatisticServiceImplTest {
     private Mapper mapper = mock(Mapper.class);
     private UserRepository userRepository = mock(UserRepository.class);
     private Map<UserView, DtoOutListFiles> listStatistics = mock(HashMap.class);
-    private Logger logger = mock(Logger.class);
-    private DownloadedStatisticServiceImpl statisticService = new DownloadedStatisticServiceImpl(statisticRepository, userAccessRequest, storageFileService, mapper, userRepository, logger, listStatistics);
+    private DownloadedStatisticServiceImpl statisticService = new DownloadedStatisticServiceImpl(statisticRepository, userAccessRequest, storageFileService, mapper, userRepository, listStatistics);
     private List<String> listViewUser = mock(ArrayList.class);
 
     private UserEntity userEntity;
@@ -46,8 +42,6 @@ public class DownloadedStatisticServiceImplTest {
 
     @Before
     public void setValue() {
-
-        doNothing().when(logger).info(anyString());
 
         userEntity = new UserEntity();
         userEntity.setEmail("zzz@qqq.ru");

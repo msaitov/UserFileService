@@ -1,6 +1,7 @@
 package ru.msaitov.controller;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,12 +27,11 @@ public class AnalystController {
 
     private final DownloadedStatisticService statisticService;
 
-    private static Logger logger;
+    private static Logger logger = LogManager.getFormatterLogger(AnalystController.class);
 
     @Autowired
-    public AnalystController(DownloadedStatisticService statisticService, Logger logger) {
+    public AnalystController(DownloadedStatisticService statisticService) {
         this.statisticService = statisticService;
-        AnalystController.logger = logger;
     }
 
     /**
@@ -44,7 +44,7 @@ public class AnalystController {
      */
     @RequestMapping(value = "/allListUser", method = RequestMethod.POST, params = "viewStatistics")
     public String postStatistics(@RequestParam List<String> listUserEmail, @AuthenticationPrincipal UserView userRequest, Model model) {
-        logger.info("[CONTROLLER] postStatistics");
+        logger.info("[CONTROLLER] method: postStatistics, Просмотр списка всех пользователей");
         statisticService.setStatistics(listUserEmail, userRequest);
         return "redirect:/statistics";
     }
@@ -59,7 +59,7 @@ public class AnalystController {
     @GetMapping("/statistics")
     public String getViewStatisticFiles(@AuthenticationPrincipal UserView userRequest,
                                         Model model) {
-        logger.info("[CONTROLLER] getViewStatisticFiles");
+        logger.info("[CONTROLLER] method: getViewStatisticFiles, Получение статистики пользователя");
         DtoOutListFiles dtoOutListFiles = statisticService.getStatistics(userRequest);
         List<ViewStatistic> listFiles = dtoOutListFiles.getListStatistic();
         String email = dtoOutListFiles.getEmail();

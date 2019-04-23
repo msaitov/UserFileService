@@ -2,7 +2,6 @@ package ru.msaitov.service;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import ru.msaitov.service.sendEMail.EmailServiceImpl;
@@ -16,8 +15,7 @@ import static org.mockito.Mockito.verify;
 public class EmailServiceImplTest {
 
     private JavaMailSender emailSender = mock(JavaMailSender.class);
-    private Logger logger = mock(Logger.class);
-    private EmailServiceImpl emailService = new EmailServiceImpl(emailSender, logger);
+    private EmailServiceImpl emailService = new EmailServiceImpl(emailSender);
     private UserView userView;
 
     @Before

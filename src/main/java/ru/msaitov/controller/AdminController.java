@@ -1,6 +1,7 @@
 package ru.msaitov.controller;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,14 +33,13 @@ public class AdminController {
 
     private final StorageFileService storageFileService;
 
-    private static Logger logger;
+    private static Logger logger = LogManager.getFormatterLogger(AdminController.class);
 
     @Autowired
-    public AdminController(UserAccessRequest userAccessRequest, AdminService adminService, StorageFileService storageFileService, Logger logger) {
+    public AdminController(UserAccessRequest userAccessRequest, AdminService adminService, StorageFileService storageFileService) {
         this.userAccessRequest = userAccessRequest;
         this.adminService = adminService;
         this.storageFileService = storageFileService;
-        AdminController.logger = logger;
     }
 
     /**
@@ -52,7 +52,7 @@ public class AdminController {
     @GetMapping("/allListUser")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('ANALYST')")
     public String getAllListUser(Model model, @AuthenticationPrincipal UserView userView) {
-        logger.info("[CONTROLLER] getAllListUser");
+        logger.info("[CONTROLLER] method: getAllListUser, Получить список всех пользователей");
         List<String> userListEnabledEmail = adminService.getAllEnabledUser(userView);
         int userCount = userListEnabledEmail.size();
         model.addAttribute("emailList", userListEnabledEmail);
@@ -74,7 +74,7 @@ public class AdminController {
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('ANALYST')")
     @RequestMapping(value = "/allListUser", method = RequestMethod.POST, params = "viewFiles")
     public String PostAllListUser(@RequestParam List<String> listUserEmail, @AuthenticationPrincipal UserView userRequest, Model model) {
-        logger.info("[CONTROLLER] PostAllListUser");
+        logger.info("[CONTROLLER] method: PostAllListUser, Обработка списка пользователей");
         adminService.setListFiles(listUserEmail, userRequest);
         return "redirect:/viewFilesAdmin";
     }
@@ -89,7 +89,7 @@ public class AdminController {
     @GetMapping("/viewFilesAdmin")
     public String getViewFiles(@AuthenticationPrincipal UserView userRequest,
                                Model model) {
-        logger.info("[CONTROLLER] getViewFiles");
+        logger.info("[CONTROLLER] method: getViewFiles, Просмотр файлов");
         DtoOutListFiles dtoOutListFiles = adminService.getListFiles(userRequest);
         List<String> listFiles = dtoOutListFiles.getListFiles();
         String email = dtoOutListFiles.getEmail();
@@ -112,7 +112,7 @@ public class AdminController {
     @RequestMapping(value = "/operationFilesAdmin", method = RequestMethod.POST, params = "deleteFls")
     public String postDeleteFiles(@RequestParam String ownName,
                                   @RequestParam List<String> searchValues) {
-        logger.info("[CONTROLLER] postDeleteFiles");
+        logger.info("[CONTROLLER] method: postDeleteFiles, Удаление файлов");
         if (searchValues != null && searchValues.size() > 0) {
             storageFileService.deleteFiles(searchValues, userAccessRequest.getUserViewByEmail(ownName));
         }

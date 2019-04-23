@@ -2,7 +2,6 @@ package ru.msaitov.service;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
 import ru.msaitov.model.StatusAccess;
 import ru.msaitov.model.UserAccessEntity;
 import ru.msaitov.model.UserEntity;
@@ -28,8 +27,7 @@ public class UserAccessImplTest extends MockInit {
     private UserRepository userRepository = mock(UserRepository.class);
     private AccessRepository accessRepository = mock(AccessRepository.class);
     private Mapper mapper = mock(Mapper.class);
-    private Logger logger = mock(Logger.class);
-    private UserAccessImpl userAccess = new UserAccessImpl(userRepository, accessRepository, mapper, logger);
+    private UserAccessImpl userAccess = new UserAccessImpl(userRepository, accessRepository, mapper);
     private UserAccessImpl userAccessSpy = Mockito.spy(userAccess);
 
     @Test

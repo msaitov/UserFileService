@@ -1,6 +1,7 @@
 package ru.msaitov.service.verificationToken;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,14 +20,12 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 
     private final UserRepository userRepository;
 
-    private static Logger logger;
+    private static Logger logger = LogManager.getFormatterLogger(VerificationTokenServiceImpl.class);
 
     @Autowired
-    public VerificationTokenServiceImpl(VerificationTokenRepository tokenRepository, UserRepository userRepository, Logger logger) {
+    public VerificationTokenServiceImpl(VerificationTokenRepository tokenRepository, UserRepository userRepository) {
         this.tokenRepository = tokenRepository;
         this.userRepository = userRepository;
-        VerificationTokenServiceImpl.logger = logger;
-
     }
 
     /**
@@ -34,7 +33,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
      */
     @Override
     public TokenState validateVerificationToken(String token) {
-        logger.info("[SERVICE] validateVerificationToken");
+        logger.info("[SERVICE] method: validateVerificationToken, Проверка токена");
         final VerificationToken verificationToken = tokenRepository.findByToken(token);
         if (verificationToken == null) {
             return TokenState.TOKEN_INVALID;

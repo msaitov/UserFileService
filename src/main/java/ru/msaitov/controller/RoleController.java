@@ -1,6 +1,7 @@
 package ru.msaitov.controller;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -27,12 +28,11 @@ public class RoleController {
 
     private final UserAccess userAccess;
 
-    private static Logger logger;
+    private static Logger logger = LogManager.getFormatterLogger(RoleController.class);
 
     @Autowired
-    public RoleController(UserAccess userAccess, Logger logger) {
+    public RoleController(UserAccess userAccess) {
         this.userAccess = userAccess;
-        RoleController.logger = logger;
     }
 
     /**
@@ -43,7 +43,7 @@ public class RoleController {
      */
     @GetMapping("/userRole")
     public String getUserRole(Model model) {
-        logger.info("[CONTROLLER] getUserRole");
+        logger.info("[CONTROLLER] method: getUserRole, Получить список всех пользователей");
         model.addAttribute("users", userAccess.getAllUser());
         return "userRole";
     }
@@ -57,7 +57,7 @@ public class RoleController {
      */
     @GetMapping("/userRole/{userId}")
     public String getUserRole(@PathVariable Long userId, Model model) {
-        logger.info("[CONTROLLER] getUserRole with id");
+        logger.info("[CONTROLLER] method: getUserRole, Получить Id пользователя");
         UserView userView = userAccess.getUserViewById(userId);
         model.addAttribute("user", userView);
         model.addAttribute("roles", Role.values());
@@ -77,7 +77,7 @@ public class RoleController {
             @RequestParam Map<String, String> form,
             @RequestParam("userId") Long userId) {
 
-        logger.info("[CONTROLLER] postUserRole");
+        logger.info("[CONTROLLER] method: postUserRole, Обработка кнопки Сохранить измененные Права доступа");
         UserView userView = userAccess.getUserViewById(userId);
         userView.setEmail(email);
 

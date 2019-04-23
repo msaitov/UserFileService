@@ -1,6 +1,7 @@
 package ru.msaitov.controller;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,13 +26,12 @@ public class UserController {
 
     private final VerificationTokenService tokenService;
 
-    private static Logger logger;
+    private static Logger logger = LogManager.getFormatterLogger(UserController.class);
 
     @Autowired
-    public UserController(UserService userService, VerificationTokenService tokenService, Logger logger) {
+    public UserController(UserService userService, VerificationTokenService tokenService) {
         this.userService = userService;
         this.tokenService = tokenService;
-        UserController.logger = logger;
     }
 
     /**
@@ -41,7 +41,7 @@ public class UserController {
      */
     @GetMapping("/")
     public String redirecLogin() {
-        logger.info("[CONTROLLER] redirecLogin");
+        logger.info("[CONTROLLER] method: redirecLogin, Перенаправление на страницу console");
         return "redirect:/console";
     }
 
@@ -52,7 +52,7 @@ public class UserController {
      */
     @GetMapping("/registration")
     public String getRegistration() {
-        logger.info("[CONTROLLER] getRegistration");
+        logger.info("[CONTROLLER] getRegistration, Регистрация");
         return "registration";
     }
 
@@ -65,7 +65,7 @@ public class UserController {
      */
     @PostMapping("/registration")
     public String postRegistration(@ModelAttribute UserView userView, final HttpServletRequest request) {
-        logger.info("[CONTROLLER] postRegistration");
+        logger.info("[CONTROLLER] method: postRegistration, Обработка формы регистрации");
         if (userView.getEmail().isEmpty() || userView.getPassword().isEmpty()) {
             return "registration";
         }
@@ -85,7 +85,7 @@ public class UserController {
      */
     @GetMapping(value = "/registrationConfirm*")
     public String confirmRegistration(@RequestParam("token") final String token) {
-        logger.info("[CONTROLLER] confirmRegistration");
+        logger.info("[CONTROLLER] method: confirmRegistration, Обработка ссылки для активации пользователя");
         final TokenState tokenState = tokenService.validateVerificationToken(token);
         switch (tokenState) {
             case TOKEN_INVALID:
@@ -97,7 +97,7 @@ public class UserController {
     }
 
     private String getAppUrl(HttpServletRequest request) {
-        logger.info("[CONTROLLER] getAppUrl");
+        logger.info("[CONTROLLER] method: getAppUrl");
         return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
     }
 }

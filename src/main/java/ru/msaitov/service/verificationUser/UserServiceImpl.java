@@ -1,6 +1,7 @@
 package ru.msaitov.service.verificationUser;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,16 +33,14 @@ public class UserServiceImpl implements UserService {
 
     private final Mapper mapper;
 
-    private static Logger logger;
+    private static Logger logger = LogManager.getFormatterLogger(UserServiceImpl.class);
 
     @Autowired
-    public UserServiceImpl(EmailService emailService, UserRepository userRepository, VerificationTokenRepository tokenRepository, Mapper mapper, Logger logger) {
+    public UserServiceImpl(EmailService emailService, UserRepository userRepository, VerificationTokenRepository tokenRepository, Mapper mapper) {
         this.emailService = emailService;
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.mapper = mapper;
-        UserServiceImpl.logger = logger;
-
     }
 
     /**
@@ -49,7 +48,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void registerNewUserAccount(final UserView userView, final String url) throws UserAlreadyExistException {
-        logger.info("[SERVICE] registerNewUserAccount");
+        logger.info("[SERVICE] method: registerNewUserAccount, Регистрация нового пользователя");
         if (emailExists(userView.getEmail())) {
             logger.error("User Already Exist");
             throw new UserAlreadyExistException();
@@ -71,7 +70,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        logger.info("[SERVICE] loadUserByUsername");
+        logger.info("[SERVICE] method: loadUserByUsername, Получить пользователя по имени");
         UserEntity userEntity = userRepository.findByEmail(username);
         if (userEntity == null) {
             logger.error("User not found");
@@ -83,23 +82,23 @@ public class UserServiceImpl implements UserService {
     }
 
     void saveUser(UserEntity userEntity) {
-        logger.info("[SERVICE] saveUser");
+        logger.info("[SERVICE] method: saveUser, сохранить пользователя");
         userRepository.save(userEntity);
     }
 
     private void saveToken(String token, UserEntity userEntity) {
-        logger.info("[SERVICE] saveToken");
+        logger.info("[SERVICE] method: saveToken, сохранить токен");
         final VerificationToken myToken = new VerificationToken(token, userEntity);
         tokenRepository.save(myToken);
     }
 
     private void sendEmail(UserView userView, String url, String token) {
-        logger.info("[SERVICE] sendEmail");
+        logger.info("[SERVICE] method: sendEmail, послать email");
         emailService.send(userView, url, token);
     }
 
     private boolean emailExists(final String email) {
-        logger.info("[SERVICE] emailExists");
+        logger.info("[SERVICE] method: emailExists, проверка существования email");
         return userRepository.findByEmail(email) != null;
     }
 }

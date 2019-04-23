@@ -20,7 +20,7 @@ public class VerificationTokenServiceImplTest extends MockInit {
 
     private VerificationTokenRepository tokenRepository = mock(VerificationTokenRepository.class);
     private UserRepository userRepository = mock(UserRepository.class);
-    private VerificationTokenServiceImpl verificationTokenService = new VerificationTokenServiceImpl(tokenRepository, userRepository, logger);
+    private VerificationTokenServiceImpl verificationTokenService = new VerificationTokenServiceImpl(tokenRepository, userRepository);
     private VerificationTokenServiceImpl verificationTokenServiceSpy = Mockito.spy(verificationTokenService);
     private String testToken;
 

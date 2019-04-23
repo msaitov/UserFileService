@@ -3,7 +3,6 @@ package ru.msaitov.service;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
 import org.springframework.web.multipart.MultipartFile;
 import ru.msaitov.model.mapper.Mapper;
 import ru.msaitov.repository.UserRepository;
@@ -22,8 +21,7 @@ public class StorageFileServiceImplTest {
 
     private UserRepository userRepository = mock(UserRepository.class);
     private Mapper mapper = mock(Mapper.class);
-    private Logger logger = mock(Logger.class);
-    private StorageFileServiceImpl storageFileService = new StorageFileServiceImpl(userRepository, mapper, logger);
+    private StorageFileServiceImpl storageFileService = new StorageFileServiceImpl(userRepository, mapper);
     private StorageFileServiceImpl storageFileServiceSpy = Mockito.spy(storageFileService);
 
     private UserView userView;

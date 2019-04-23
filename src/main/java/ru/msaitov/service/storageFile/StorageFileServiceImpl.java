@@ -1,6 +1,7 @@
 package ru.msaitov.service.storageFile;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -33,16 +34,15 @@ public class StorageFileServiceImpl implements StorageFileService {
 
     private final Mapper mapper;
 
-    private static Logger logger;
+    private static Logger logger = LogManager.getFormatterLogger(StorageFileServiceImpl.class);
 
     @Value("${file.upload-dir}")
     private String pathCommon;
 
     @Autowired
-    public StorageFileServiceImpl(UserRepository userRepository, Mapper mapper, Logger logger) {
+    public StorageFileServiceImpl(UserRepository userRepository, Mapper mapper) {
         this.userRepository = userRepository;
         this.mapper = mapper;
-        StorageFileServiceImpl.logger = logger;
     }
 
     /**
@@ -50,7 +50,7 @@ public class StorageFileServiceImpl implements StorageFileService {
      */
     @Override
     public void deleteFiles(List<String> listFiles, UserView userView) {
-        logger.info("[SERVICE] deleteFiles");
+        logger.info("[SERVICE] method: deleteFiles, Удалить файлы");
         for (String listFile : listFiles) {
             File file = new File(getLocationFolder(userView) + "\\" + listFile);
             file.delete();
@@ -62,7 +62,7 @@ public class StorageFileServiceImpl implements StorageFileService {
      */
     @Override
     public Path getLocationFolder(UserView userView) {
-        logger.info("[SERVICE] getLocationFolder");
+        logger.info("[SERVICE] method: getLocationFolder, Получить текущий каталог пользователя");
         String idString = userView.getId().toString();
         Path folder = Paths.get(pathCommon, idString).toAbsolutePath().normalize();
 
@@ -78,7 +78,7 @@ public class StorageFileServiceImpl implements StorageFileService {
      */
     @Override
     public List<String> getListFiles(UserView userView) {
-        logger.info("[SERVICE] getListFiles");
+        logger.info("[SERVICE] method: getListFiles, Получить список файлов пользователя");
         Path userFolder = getLocationFolder(userView);
         File folder = new File(userFolder.toString());
         File[] arrayOfFiles = folder.listFiles();
@@ -97,7 +97,7 @@ public class StorageFileServiceImpl implements StorageFileService {
      */
     @Override
     public String storeFile(MultipartFile file, UserView userView) {
-        logger.info("[SERVICE] storeFile");
+        logger.info("[SERVICE] method: storeFile, Сохранить файлы");
         Path userFolder = getLocationFolder(userView);
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         if (fileName == null || fileName.equals("")) {
@@ -124,7 +124,7 @@ public class StorageFileServiceImpl implements StorageFileService {
      */
     @Override
     public Resource loadFileAsResource(String fileName, UserView userView) {
-        logger.info("[SERVICE] loadFileAsResource");
+        logger.info("[SERVICE] loadFileAsResource, Загрузить файл");
         try {
             Path userFolder = getLocationFolder(userView);
             if (fileName == null || fileName.equals("")) {

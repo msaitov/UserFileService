@@ -1,6 +1,7 @@
 package ru.msaitov.controller;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -39,14 +40,13 @@ public class RequestController {
 
     private final DownloadedStatisticService statisticService;
 
-    private static Logger logger;
+    private static Logger logger = LogManager.getFormatterLogger(RequestController.class);
 
     @Autowired
-    public RequestController(UserAccessRequest userAccessRequest, StorageFileService storageFileService, DownloadedStatisticService statisticService, Logger logger) {
+    public RequestController(UserAccessRequest userAccessRequest, StorageFileService storageFileService, DownloadedStatisticService statisticService) {
         this.userAccessRequest = userAccessRequest;
         this.storageFileService = storageFileService;
         this.statisticService = statisticService;
-        RequestController.logger = logger;
     }
 
     /**
@@ -58,7 +58,7 @@ public class RequestController {
      */
     @GetMapping("/requestAccess")
     public String getRequestAccess(@AuthenticationPrincipal UserView userRequest, Model model) {
-        logger.info("[CONTROLLER] getRequestAccess");
+        logger.info("[CONTROLLER] method: getRequestAccess, Запросить доступ");
         List<String> ownEmails = userAccessRequest.getAllAccessUser(userRequest);
         model.addAttribute("listUserAccess", ownEmails);
         return "access/requestAccess";
@@ -75,7 +75,7 @@ public class RequestController {
     @GetMapping("/viewFiles")
     public String getViewFiles(@AuthenticationPrincipal UserView userRequest,
                                Model model) {
-        logger.info("[CONTROLLER] getViewFiles");
+        logger.info("[CONTROLLER] method: getViewFiles, Просмотр файлов другого пользователя");
         DtoOutListFiles dtoOutListFiles = userAccessRequest.getListFiles(userRequest);
         StatusAccess statusAccess = StatusAccess.ACCESS_DENIED;
         List<String> listFiles = null;
@@ -116,7 +116,7 @@ public class RequestController {
      */
     @RequestMapping(value = "/operationRequest", method = RequestMethod.POST, params = "viewFiles")
     public String postOperationRequest(@RequestParam List<String> listUserAccessValues, @AuthenticationPrincipal UserView userRequest, Model model) {
-        logger.info("[CONTROLLER] postOperationRequest");
+        logger.info("[CONTROLLER] postOperationRequest, Обработка кнопки: Просмотр файлов");
         userAccessRequest.userStatusRequested(listUserAccessValues, userRequest);
         return "redirect:/viewFiles";
     }
@@ -130,7 +130,7 @@ public class RequestController {
      */
     @GetMapping("/listUserRequest")
     public String getListUserRequest(Model model, @AuthenticationPrincipal UserView userEntityExclude) {
-        logger.info("[CONTROLLER] getListUserRequest");
+        logger.info("[CONTROLLER] getListUserRequest, Список пользователей, для запроса на просмотр или скачивание файлов");
         List<String> userListEnabledEmail = userAccessRequest.getAllEnabledUser(userEntityExclude);
         int userCount = userListEnabledEmail.size();
         model.addAttribute("requestAccessSend", userListEnabledEmail);
@@ -149,7 +149,7 @@ public class RequestController {
     @RequestMapping(value = "/operationRequest", method = RequestMethod.POST, params = "deleteRequests")
     public String postOperationRequest(@RequestParam List<String> listUserAccessValues,
                                        @AuthenticationPrincipal UserView userRequest) {
-        logger.info("[CONTROLLER] postOperationRequest");
+        logger.info("[CONTROLLER] postOperationRequest, Обработка кнопки: удалить запрос");
         userAccessRequest.deleteRequest(listUserAccessValues, userRequest);
         return "redirect:/requestAccess";
     }
@@ -166,7 +166,7 @@ public class RequestController {
     public String PostRequestAccessAction(@RequestParam List<String> requestAccessValue,
                                           @AuthenticationPrincipal UserView userRequest,
                                           String downloadAccess) {
-        logger.info("[CONTROLLER] PostRequestAccessAction");
+        logger.info("[CONTROLLER] PostRequestAccessAction, Обработка формы: сделать запрос");
         if (requestAccessValue == null) {
             return "access/listUser";
         }
@@ -187,7 +187,7 @@ public class RequestController {
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName,
                                                  @PathVariable Long id,
                                                  HttpServletRequest request) {
-        logger.info("[CONTROLLER] downloadFile");
+        logger.info("[CONTROLLER] method: downloadFile, Скачать файл у другого пользователя");
         UserView userView = userAccessRequest.getUserViewById(id);
         Resource resource = storageFileService.loadFileAsResource(fileName, userView);
 
@@ -195,8 +195,8 @@ public class RequestController {
         try {
             contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
         } catch (IOException ex) {
-            logger.error("[CONTROLLER] Could not determine file type.\"");
-            throw new RuntimeException("Could not determine file type.");
+            logger.error("[CONTROLLER] Could not determine file type");
+            throw new RuntimeException("Could not determine file type.", ex);
         }
 
         if (contentType == null) {

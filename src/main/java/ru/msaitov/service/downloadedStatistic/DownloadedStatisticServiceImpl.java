@@ -1,6 +1,7 @@
 package ru.msaitov.service.downloadedStatistic;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,19 +34,18 @@ public class DownloadedStatisticServiceImpl implements DownloadedStatisticServic
 
     private final UserRepository userRepository;
 
-    private static Logger logger;
+    private static Logger logger = LogManager.getFormatterLogger(DownloadedStatisticServiceImpl.class);
+
     private Map<UserView, DtoOutListFiles> listStatistics;
 
     @Autowired
-    public DownloadedStatisticServiceImpl(DownloadedStatisticRepository statisticRepository, UserAccessRequest userAccessRequest, StorageFileService storageFileService, Mapper mapper, UserRepository userRepository, Logger logger, Map<UserView, DtoOutListFiles> listStatistics) {
+    public DownloadedStatisticServiceImpl(DownloadedStatisticRepository statisticRepository, UserAccessRequest userAccessRequest, StorageFileService storageFileService, Mapper mapper, UserRepository userRepository, Map<UserView, DtoOutListFiles> listStatistics) {
         this.statisticRepository = statisticRepository;
         this.userAccessRequest = userAccessRequest;
         this.storageFileService = storageFileService;
         this.mapper = mapper;
         this.userRepository = userRepository;
         this.listStatistics = listStatistics;
-        DownloadedStatisticServiceImpl.logger = logger;
-
     }
 
     /**
@@ -53,7 +53,7 @@ public class DownloadedStatisticServiceImpl implements DownloadedStatisticServic
      */
     @Override
     public void incDownload(UserView userView, String fileName) {
-        logger.info("[SERVICE] incDownload");
+        logger.info("[SERVICE] method: incDownload, Инкремент статистики файла");
         UserEntity userEntity = userRepository.getOne(userView.getId());
         DownloadedStatisticEntity statisticEntity = statisticRepository.findByFilenameAndUserEntity(fileName, userEntity.getId());
         if (statisticEntity != null) {
@@ -74,7 +74,7 @@ public class DownloadedStatisticServiceImpl implements DownloadedStatisticServic
      */
     @Override
     public DtoOutListFiles getStatistics(UserView userRequest) {
-        logger.info("[SERVICE] getStatistics");
+        logger.info("[SERVICE] method: getStatistics, Получить статистику");
         DtoOutListFiles dtoOutListFiles = this.listStatistics.get(userRequest);
         return dtoOutListFiles;
     }
@@ -84,7 +84,7 @@ public class DownloadedStatisticServiceImpl implements DownloadedStatisticServic
      */
     @Override
     public void setStatistics(List<String> listViewUser, UserView userView) {
-        logger.info("[SERVICE] setStatistics");
+        logger.info("[SERVICE] method: setStatistics, Установить статистику");
         DtoOutListFiles dtoOutListFiles = new DtoOutListFiles();
         dtoOutListFiles.setListStatistic(Collections.emptyList());
         listStatistics.put(userView, dtoOutListFiles);

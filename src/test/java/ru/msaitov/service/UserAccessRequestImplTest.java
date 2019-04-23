@@ -2,7 +2,6 @@ package ru.msaitov.service;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
 import ru.msaitov.model.StatusAccess;
 import ru.msaitov.model.UserAccessEntity;
 import ru.msaitov.model.UserEntity;
@@ -33,8 +32,7 @@ public class UserAccessRequestImplTest extends MockInit {
     private Mapper mapper = mock(Mapper.class);
     private StorageFileService storageFileService = mock(StorageFileService.class);
     private Map<UserView, DtoOutListFiles> listFiles = mock(HashMap.class);
-    private Logger logger = mock(Logger.class);
-    private UserAccessRequestImpl userAccessRequest = new UserAccessRequestImpl(userRepository, accessRepository, mapper, storageFileService, logger, listFiles);
+    private UserAccessRequestImpl userAccessRequest = new UserAccessRequestImpl(userRepository, accessRepository, mapper, storageFileService, listFiles);
     private UserAccessRequestImpl userAccessRequestSpy = Mockito.spy(userAccessRequest);
 
     @Test
