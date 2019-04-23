@@ -1,5 +1,6 @@
 package ru.msaitov.service.downloadedStatistic;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +16,6 @@ import ru.msaitov.view.UserView;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,15 +33,19 @@ public class DownloadedStatisticServiceImpl implements DownloadedStatisticServic
 
     private final UserRepository userRepository;
 
-    private Map<UserView, DtoOutListFiles> listStatistics = new HashMap<>();
+    private static Logger logger;
+    private Map<UserView, DtoOutListFiles> listStatistics;
 
     @Autowired
-    public DownloadedStatisticServiceImpl(DownloadedStatisticRepository statisticRepository, UserAccessRequest userAccessRequest, StorageFileService storageFileService, Mapper mapper, UserRepository userRepository) {
+    public DownloadedStatisticServiceImpl(DownloadedStatisticRepository statisticRepository, UserAccessRequest userAccessRequest, StorageFileService storageFileService, Mapper mapper, UserRepository userRepository, Logger logger, Map<UserView, DtoOutListFiles> listStatistics) {
         this.statisticRepository = statisticRepository;
         this.userAccessRequest = userAccessRequest;
         this.storageFileService = storageFileService;
         this.mapper = mapper;
         this.userRepository = userRepository;
+        this.listStatistics = listStatistics;
+        DownloadedStatisticServiceImpl.logger = logger;
+
     }
 
     /**
@@ -49,6 +53,7 @@ public class DownloadedStatisticServiceImpl implements DownloadedStatisticServic
      */
     @Override
     public void incDownload(UserView userView, String fileName) {
+        logger.info("[SERVICE] incDownload");
         UserEntity userEntity = userRepository.getOne(userView.getId());
         DownloadedStatisticEntity statisticEntity = statisticRepository.findByFilenameAndUserEntity(fileName, userEntity.getId());
         if (statisticEntity != null) {
@@ -69,6 +74,7 @@ public class DownloadedStatisticServiceImpl implements DownloadedStatisticServic
      */
     @Override
     public DtoOutListFiles getStatistics(UserView userRequest) {
+        logger.info("[SERVICE] getStatistics");
         DtoOutListFiles dtoOutListFiles = this.listStatistics.get(userRequest);
         return dtoOutListFiles;
     }
@@ -78,6 +84,7 @@ public class DownloadedStatisticServiceImpl implements DownloadedStatisticServic
      */
     @Override
     public void setStatistics(List<String> listViewUser, UserView userView) {
+        logger.info("[SERVICE] setStatistics");
         DtoOutListFiles dtoOutListFiles = new DtoOutListFiles();
         dtoOutListFiles.setListStatistic(Collections.emptyList());
         listStatistics.put(userView, dtoOutListFiles);

@@ -1,5 +1,6 @@
 package ru.msaitov.controller;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -26,19 +27,23 @@ public class RoleController {
 
     private final UserAccess userAccess;
 
+    private static Logger logger;
+
     @Autowired
-    public RoleController(UserAccess userAccess) {
+    public RoleController(UserAccess userAccess, Logger logger) {
         this.userAccess = userAccess;
+        RoleController.logger = logger;
     }
 
     /**
      * Получить список всех пользователей
      *
-     * @param model
-     * @return
+     * @param model - передача параметров в фронт
+     * @return переход на страницу userRole
      */
     @GetMapping("/userRole")
     public String getUserRole(Model model) {
+        logger.info("[CONTROLLER] getUserRole");
         model.addAttribute("users", userAccess.getAllUser());
         return "userRole";
     }
@@ -46,12 +51,13 @@ public class RoleController {
     /**
      * Получить Id пользователя
      *
-     * @param userId
-     * @param model
-     * @return
+     * @param userId - id пользователя
+     * @param model - передача параметров в фронт
+     * @return переход на страницу userEdit
      */
     @GetMapping("/userRole/{userId}")
     public String getUserRole(@PathVariable Long userId, Model model) {
+        logger.info("[CONTROLLER] getUserRole with id");
         UserView userView = userAccess.getUserViewById(userId);
         model.addAttribute("user", userView);
         model.addAttribute("roles", Role.values());
@@ -61,10 +67,9 @@ public class RoleController {
     /**
      * Обработка кнопки Сохранить измененные Права доступа
      *
-     * @param email
-     * @param form
-     * @param userId
-     * @return
+     * @param email - email пользователя
+     * @param form - Role
+     * @return переход на страницу userRole
      */
     @PostMapping("/userRole")
     public String postUserRole(
@@ -72,6 +77,7 @@ public class RoleController {
             @RequestParam Map<String, String> form,
             @RequestParam("userId") Long userId) {
 
+        logger.info("[CONTROLLER] postUserRole");
         UserView userView = userAccess.getUserViewById(userId);
         userView.setEmail(email);
 

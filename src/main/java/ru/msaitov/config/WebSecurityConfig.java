@@ -38,8 +38,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     /**
      * Кофигурация доступных url
      *
-     * @param http
-     * @throws Exception
+     * @param http - включаем HTTP Security
+     * @throws Exception - проверяемое исключение
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -51,7 +51,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .formLogin()
                 .loginPage("/login")
-                .usernameParameter("email")
+                .usernameParameter("username")
                 .permitAll()
                 .and()
                 .logout()
@@ -62,8 +62,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     /**
      * Кофигурация аутентификации
      *
-     * @param auth
-     * @throws Exception
+     * @param auth - аутентификацию пользователя
+     * @throws Exception - проверяемое исключение
      */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

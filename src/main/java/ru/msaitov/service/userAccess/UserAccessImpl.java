@@ -1,5 +1,6 @@
 package ru.msaitov.service.userAccess;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,11 +26,14 @@ public class UserAccessImpl implements UserAccess {
 
     private final Mapper mapper;
 
+    private static Logger logger;
+
     @Autowired
-    public UserAccessImpl(UserRepository userRepository, AccessRepository accessRepository, Mapper mapper) {
+    public UserAccessImpl(UserRepository userRepository, AccessRepository accessRepository, Mapper mapper, Logger logger) {
         this.userRepository = userRepository;
         this.accessRepository = accessRepository;
         this.mapper = mapper;
+        UserAccessImpl.logger = logger;
     }
 
     /**
@@ -37,6 +41,7 @@ public class UserAccessImpl implements UserAccess {
      */
     @Override
     public void saveUser(UserView userView) {
+        logger.info("[SERVICE] saveUser");
         UserEntity userEntity = userRepository.getOne(userView.getId());
         userRepository.save(userEntity);
     }
@@ -46,6 +51,7 @@ public class UserAccessImpl implements UserAccess {
      */
     @Override
     public List<String> requestedAccess(UserView owner) {
+        logger.info("[SERVICE] requestedAccess");
         UserEntity ownerEntity = mapper.map(owner);
         List<UserAccessEntity> userAEs = accessRepository.filterByUserOwn(ownerEntity.getId());
         List<String> emails = new ArrayList<>();
@@ -66,6 +72,7 @@ public class UserAccessImpl implements UserAccess {
      */
     @Override
     public List<String> getAllEnabledUser(UserView userViewExclude) {
+        logger.info("[SERVICE] getAllEnabledUser");
         List<UserEntity> userEntityList = userRepository.findAll();
         List<String> userViewListEmail = new ArrayList<>();
         for (UserEntity userEntity : userEntityList) {
@@ -85,6 +92,7 @@ public class UserAccessImpl implements UserAccess {
      */
     @Override
     public List<UserEntity> getAllUser() {
+        logger.info("[SERVICE] getAllUser");
         return userRepository.findAll();
     }
 
@@ -93,6 +101,7 @@ public class UserAccessImpl implements UserAccess {
      */
     @Override
     public void addUserAccess(UserView userOwn, List<String> listUserAccess, String downloadAccess) {
+        logger.info("[SERVICE] addUserAccess");
         if (listUserAccess.size() <= 1) {
             return;
         }
@@ -121,6 +130,7 @@ public class UserAccessImpl implements UserAccess {
      */
     @Override
     public List<String> getListEmailAccess(UserView userOwn) {
+        logger.info("[SERVICE] getListEmailAccess");
         List<UserAccessEntity> listUserAccessEntities = accessRepository.findAll();
         List<String> listUserAccess = new ArrayList<>();
 
@@ -142,6 +152,7 @@ public class UserAccessImpl implements UserAccess {
      */
     @Override
     public void accessDinied(List<String> listDenied, UserView userOwn) {
+        logger.info("[SERVICE] accessDinied");
         for (String s : listDenied) {
             String[] elements = s.split(" ");
             String eMail = elements[0];
@@ -157,6 +168,7 @@ public class UserAccessImpl implements UserAccess {
      */
     @Override
     public void statusChangeAccessDenied(List<String> requestedEmail, UserView userOwn, String typeProcess) {
+        logger.info("[SERVICE] statusChangeAccessDenied");
         List<String> emails = clearEmail(requestedEmail);
 
         for (String email : emails) {
@@ -193,6 +205,7 @@ public class UserAccessImpl implements UserAccess {
      */
     @Override
     public UserView getUserViewById(Long userId) {
+        logger.info("[SERVICE] getUserViewById");
         return mapper.map(userRepository.getOne(userId));
     }
 

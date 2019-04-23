@@ -1,5 +1,6 @@
 package ru.msaitov.controller;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,21 +26,25 @@ public class AnalystController {
 
     private final DownloadedStatisticService statisticService;
 
+    private static Logger logger;
+
     @Autowired
-    public AnalystController(DownloadedStatisticService statisticService) {
+    public AnalystController(DownloadedStatisticService statisticService, Logger logger) {
         this.statisticService = statisticService;
+        AnalystController.logger = logger;
     }
 
     /**
      * Просмотр списка всех пользователей
      *
-     * @param listUserEmail
-     * @param userRequest
-     * @param model
-     * @return
+     * @param listUserEmail - получение email пользователей
+     * @param userRequest - текущий пользователь который делает запрос
+     * @param model - передача параметров в фронт
+     * @return переход на страницу statistics
      */
     @RequestMapping(value = "/allListUser", method = RequestMethod.POST, params = "viewStatistics")
     public String postStatistics(@RequestParam List<String> listUserEmail, @AuthenticationPrincipal UserView userRequest, Model model) {
+        logger.info("[CONTROLLER] postStatistics");
         statisticService.setStatistics(listUserEmail, userRequest);
         return "redirect:/statistics";
     }
@@ -47,13 +52,14 @@ public class AnalystController {
     /**
      * Получение статистики пользователя
      *
-     * @param userRequest
-     * @param model
-     * @return
+     * @param userRequest - текущий пользователь который делает запрос
+     * @param model - передача параметров в фронт
+     * @return переход на страницу statistics
      */
     @GetMapping("/statistics")
     public String getViewStatisticFiles(@AuthenticationPrincipal UserView userRequest,
                                         Model model) {
+        logger.info("[CONTROLLER] getViewStatisticFiles");
         DtoOutListFiles dtoOutListFiles = statisticService.getStatistics(userRequest);
         List<ViewStatistic> listFiles = dtoOutListFiles.getListStatistic();
         String email = dtoOutListFiles.getEmail();

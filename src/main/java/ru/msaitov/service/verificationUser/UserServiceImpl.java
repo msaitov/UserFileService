@@ -1,5 +1,6 @@
 package ru.msaitov.service.verificationUser;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,12 +32,16 @@ public class UserServiceImpl implements UserService {
 
     private final Mapper mapper;
 
+    private static Logger logger;
+
     @Autowired
-    public UserServiceImpl(EmailService emailService, UserRepository userRepository, VerificationTokenRepository tokenRepository, Mapper mapper) {
+    public UserServiceImpl(EmailService emailService, UserRepository userRepository, VerificationTokenRepository tokenRepository, Mapper mapper, Logger logger) {
         this.emailService = emailService;
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.mapper = mapper;
+        UserServiceImpl.logger = logger;
+
     }
 
     /**
@@ -44,7 +49,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void registerNewUserAccount(final UserView userView, final String url) throws UserAlreadyExistException {
+        logger.info("[SERVICE] registerNewUserAccount");
         if (emailExists(userView.getEmail())) {
+            logger.error("User Already Exist");
             throw new UserAlreadyExistException();
         }
 
@@ -64,29 +71,35 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        logger.info("[SERVICE] loadUserByUsername");
         UserEntity userEntity = userRepository.findByEmail(username);
-        UserView userView = mapper.map(userEntity);
-
         if (userEntity == null) {
+            logger.error("User not found");
             throw new UsernameNotFoundException("User not found");
+
         }
+        UserView userView = mapper.map(userEntity);
         return userView;
     }
 
-    private void saveUser(UserEntity userEntity) {
+    void saveUser(UserEntity userEntity) {
+        logger.info("[SERVICE] saveUser");
         userRepository.save(userEntity);
     }
 
     private void saveToken(String token, UserEntity userEntity) {
+        logger.info("[SERVICE] saveToken");
         final VerificationToken myToken = new VerificationToken(token, userEntity);
         tokenRepository.save(myToken);
     }
 
     private void sendEmail(UserView userView, String url, String token) {
+        logger.info("[SERVICE] sendEmail");
         emailService.send(userView, url, token);
     }
 
     private boolean emailExists(final String email) {
+        logger.info("[SERVICE] emailExists");
         return userRepository.findByEmail(email) != null;
     }
 }

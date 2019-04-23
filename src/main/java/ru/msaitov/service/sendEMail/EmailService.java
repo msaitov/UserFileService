@@ -10,9 +10,9 @@ public interface EmailService {
     /**
      * Послать сообщение
      *
-     * @param user
-     * @param url
-     * @param token
+     * @param user - текущий пользователь
+     * @param url - url
+     * @param token - токен
      */
     void send(UserView user, String url, String token);
 

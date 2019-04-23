@@ -88,4 +88,5 @@ public class DownloadedStatisticEntity {
     public void setUserEntity(UserEntity userEntity) {
         this.userEntity = userEntity;
     }
+
 }

@@ -12,7 +12,7 @@ public enum Role implements GrantedAuthority {
     /**
      * Получить строковое представление роли
      *
-     * @return
+     * @return роль в виде String
      */
     @Override
     public String getAuthority() {

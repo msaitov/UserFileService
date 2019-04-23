@@ -9,7 +9,7 @@ public class MvcConfig implements WebMvcConfigurer {
     /**
      * Контроллер ввода логина и пароля
      *
-     * @param registry
+     * @param registry регистрация контроллера
      */
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {

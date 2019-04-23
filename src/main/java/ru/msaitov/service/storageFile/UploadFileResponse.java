@@ -1,8 +1,5 @@
 package ru.msaitov.service.storageFile;
 
-import org.springframework.transaction.annotation.Transactional;
-
-@Transactional
 public class UploadFileResponse {
     private String fileName;
     private String fileDownloadUri;

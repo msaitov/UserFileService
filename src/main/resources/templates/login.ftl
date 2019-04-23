@@ -5,7 +5,7 @@
 <h1>Вход в систему</h1>
 <h1>Введите логин и пароль:</h1>
 <form action="/login" method="post">
-    <div><label> E-mail: <input type="email" name="email"/> </label></div>
+    <div><label> E-mail: <input type="email" name="username"/> </label></div>
     <br>
     <div><label> Password: <input type="password" name="password"/> </label></div>
     <br>

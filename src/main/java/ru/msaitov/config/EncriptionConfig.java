@@ -11,7 +11,7 @@ public class EncriptionConfig {
     /**
      * Бин шифрования пароля
      *
-     * @return
+     * @return PasswordEncoder
      */
     @Bean
     public PasswordEncoder getPasswordEncoder() {

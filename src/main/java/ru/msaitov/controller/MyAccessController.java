@@ -1,5 +1,6 @@
 package ru.msaitov.controller;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -22,20 +23,24 @@ public class MyAccessController {
 
     private final UserAccess userAccess;
 
+    private static Logger logger;
+
     @Autowired
-    public MyAccessController(UserAccess userAccess) {
+    public MyAccessController(UserAccess userAccess, Logger logger) {
         this.userAccess = userAccess;
+        MyAccessController.logger = logger;
     }
 
     /**
      * Мой доступ
      *
-     * @param userView
-     * @param model
-     * @return
+     * @param userView - получение текущего пользователя
+     * @param model - передача параметров в фронт
+     * @return переход на страницу myAccess
      */
     @GetMapping("/myAccess")
     public String getMyAccess(@AuthenticationPrincipal UserView userView, Model model) {
+        logger.info("[CONTROLLER] getMyAccess");
         List<String> listGaveAccess = userAccess.getListEmailAccess(userView);
         model.addAttribute("listGaveAccess", listGaveAccess);
 
@@ -49,13 +54,14 @@ public class MyAccessController {
     /**
      * Дать доступ другому пользователю
      *
-     * @param gaveAccessValues
-     * @param userOwn
-     * @return
+     * @param gaveAccessValues - получение списка пользователей который нужно дать доступ
+     * @param userOwn - получение текущего пользователя
+     * @return переход на страницу myAccess
      */
     @PostMapping("/gaveAccessAction")
     public String PostDeniedAccess(@RequestParam List<String> gaveAccessValues,
                                    @AuthenticationPrincipal UserView userOwn) {
+        logger.info("[CONTROLLER] PostDeniedAccess");
         userAccess.accessDinied(gaveAccessValues, userOwn);
         return "redirect:/myAccess";
     }
@@ -63,12 +69,13 @@ public class MyAccessController {
     /**
      * Список всех пользователей
      *
-     * @param model
-     * @param userViewExclude
-     * @return
+     * @param model - передача параметров в фронт
+     * @param userViewExclude - получение текущего пользователя
+     * @return переход на страницу listUser
      */
     @GetMapping("/listUser")
     public String getListUser(Model model, @AuthenticationPrincipal UserView userViewExclude) {
+        logger.info("[CONTROLLER] getListUser");
         List<String> userListEnabledEmail = userAccess.getAllEnabledUser(userViewExclude);
         int userCount = userListEnabledEmail.size();
         model.addAttribute("requestedAccess", userListEnabledEmail);
@@ -77,17 +84,18 @@ public class MyAccessController {
     }
 
     /**
-     * Обработка формы Запросили доступ
+     * Обработка формы: Дал доступ
      *
-     * @param requestedAccessValue
-     * @param userOwn
-     * @param downloadAccess
-     * @return
+     * @param requestedAccessValue - список пользователей которые запросили досуп
+     * @param userOwn - получение текущего пользователя
+     * @param downloadAccess - разрешить скачивание
+     * @return переход на страницу myAccess
      */
     @PostMapping("requestAccessAction")
     public String PostRequestAccessAction(@RequestParam List<String> requestedAccessValue,
                                           @AuthenticationPrincipal UserView userOwn,
                                           String downloadAccess) {
+        logger.info("[CONTROLLER] PostRequestAccessAction");
         if (requestedAccessValue == null) {
             return "access/listUser";
         }
@@ -100,12 +108,13 @@ public class MyAccessController {
      * Обработка кнопки: дать доступ
      *
      * @param requestedAccessValues
-     * @param userOwn
-     * @return
+     * @param userOwn - получение текущего пользователя
+     * @return переход на страницу myAccess
      */
     @RequestMapping(value = "requestedAccessAction", method = RequestMethod.POST, params = "giveAccess")
     public String postRequestGiveAccess(@RequestParam List<String> requestedAccessValues,
                                         @AuthenticationPrincipal UserView userOwn) {
+        logger.info("[CONTROLLER] postRequestGiveAccess");
         userAccess.statusChangeAccessDenied(requestedAccessValues, userOwn, "giveAccess");
         return "redirect:/myAccess";
 
@@ -114,15 +123,15 @@ public class MyAccessController {
     /**
      * Обработка кнопки: отказать в доступе
      *
-     * @param requestedAccessValues
-     * @param userOwn
-     * @return
+     * @param requestedAccessValues - список пользователей
+     * @param userOwn - получение текущего пользователя
+     * @return переход на страницу myAccess
      */
     @RequestMapping(value = "requestedAccessAction", method = RequestMethod.POST, params = "denyAccess")
     public String postRequestDenyAccess(@RequestParam List<String> requestedAccessValues,
                                         @AuthenticationPrincipal UserView userOwn) {
+        logger.info("[CONTROLLER] postRequestDenyAccess");
         userAccess.statusChangeAccessDenied(requestedAccessValues, userOwn, "denyAccess");
         return "redirect:/myAccess";
-
     }
 }

@@ -14,18 +14,18 @@ public interface UserService extends UserDetailsService {
     /**
      * Регистрация нового пользователя
      *
-     * @param userView
-     * @param url
-     * @throws UserAlreadyExistException
+     * @param userView - текущий пользователь
+     * @param url - url
+     * @throws UserAlreadyExistException - исключение, если пользователь уже существует
      */
     void registerNewUserAccount(UserView userView, String url) throws UserAlreadyExistException;
 
     /**
      * Получить пользователя по имени
      *
-     * @param username
-     * @return
-     * @throws UsernameNotFoundException
+     * @param username - имя пользователя
+     * @return UserDetails
+     * @throws UsernameNotFoundException - исключение, если пользователь не найден
      */
     @Override
     UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;

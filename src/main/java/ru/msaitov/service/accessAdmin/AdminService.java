@@ -13,24 +13,24 @@ public interface AdminService {
     /**
      * Получить список все активированныз пользователей
      *
-     * @param userViewExclude
-     * @return
+     * @param userViewExclude - текущий пользователь
+     * @return список пользователей
      */
     List<String> getAllEnabledUser(UserView userViewExclude);
 
     /**
      * Установить список файлов
      *
-     * @param listViewUser
-     * @param userRequest
+     * @param listViewUser - список прользователей
+     * @param userRequest - текущий пользователь
      */
     void setListFiles(List<String> listViewUser, UserView userRequest);
 
     /**
      * Получить список файлов
      *
-     * @param userRequest
-     * @return
+     * @param userRequest - текущий пользователь
+     * @return DtoOutListFiles
      */
     DtoOutListFiles getListFiles(UserView userRequest);
 }

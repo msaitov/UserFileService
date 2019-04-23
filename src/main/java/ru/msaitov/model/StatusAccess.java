@@ -19,7 +19,7 @@ public enum StatusAccess {
     /**
      * Получить статус
      *
-     * @return
+     * @return status
      */
     public String getStatus() {
         return status;

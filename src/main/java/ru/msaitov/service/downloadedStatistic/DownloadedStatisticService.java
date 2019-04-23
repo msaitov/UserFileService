@@ -13,24 +13,24 @@ public interface DownloadedStatisticService {
     /**
      * Инкремент статистики файла
      *
-     * @param userView
-     * @param fileName
+     * @param userView - текущий пользователь
+     * @param fileName - имя файла
      */
     void incDownload(UserView userView, String fileName);
 
     /**
      * Получить статистику
      *
-     * @param userRequest
-     * @return
+     * @param userRequest - текущий пользователь
+     * @return DtoOutListFiles
      */
     DtoOutListFiles getStatistics(UserView userRequest);
 
     /**
      * Установить статистику
      *
-     * @param listViewUser
-     * @param userView
+     * @param listViewUser - список пользователей
+     * @param userView - текущий пользователь
      */
     void setStatistics(List<String> listViewUser, UserView userView);
 }

@@ -1,5 +1,6 @@
 package ru.msaitov.controller;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -39,21 +40,27 @@ public class ConsoleController {
 
     private final DownloadedStatisticService statisticService;
 
+    private static Logger logger;
+
     @Autowired
-    public ConsoleController(StorageFileService storageFileService, DownloadedStatisticService statisticService) {
+    public ConsoleController(StorageFileService storageFileService,
+                             DownloadedStatisticService statisticService,
+                             Logger logger) {
         this.storageFileService = storageFileService;
         this.statisticService = statisticService;
+        ConsoleController.logger = logger;
     }
 
     /**
      * Главная консоль программы
      *
-     * @param model
-     * @param userView
-     * @return
+     * @param model - передача параметров в фронт
+     * @param userView - получение текущего пользователя
+     * @return переход на страницу console
      */
     @GetMapping("/console")
     public String getConsole(Model model, @AuthenticationPrincipal UserView userView) {
+        logger.info("[CONTROLLER] getConsole");
         List<String> listFiles = storageFileService.getListFiles(userView);
         model.addAttribute("listFiles", listFiles);
         if (userView.getRoles().contains(Role.ANALYST)) {
@@ -68,20 +75,22 @@ public class ConsoleController {
 
     @PostMapping("/console")
     public String postConsole() {
+        logger.info("[CONTROLLER] postConsole");
         return "console";
     }
 
     /**
      * закачка файла на сервер
      *
-     * @param file
-     * @param userView
-     * @return
+     * @param file - текущий файл
+     * @param userView - получение текущего пользователя
+     * @return возврат объекта UploadFileResponse
      */
     @PostMapping("/uploadFile")
     @ResponseBody
     public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file,
                                          @AuthenticationPrincipal UserView userView) {
+        logger.info("[CONTROLLER] uploadFile");
         String fileName = storageFileService.storeFile(file, userView);
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -97,14 +106,15 @@ public class ConsoleController {
     /**
      * закачка файлов на сервер
      *
-     * @param files
-     * @param userView
-     * @return
+     * @param files - текущие файлы
+     * @param userView - получение текущего пользователя
+     * @return возврат списка объектов List<UploadFileResponse>
      */
     @PostMapping("/uploadMultipleFiles")
     @ResponseBody
     public List<UploadFileResponse> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files,
                                                         @AuthenticationPrincipal UserView userView) {
+        logger.info("[CONTROLLER] uploadMultipleFiles");
         List<UploadFileResponse> uploadFileResponses = Arrays.asList(files)
                 .stream()
                 .map(file -> uploadFile(file, userView))
@@ -115,32 +125,35 @@ public class ConsoleController {
     /**
      * Обновить страницу
      *
-     * @return
+     * @return переход на страницу console
      */
     @PostMapping("/refresh")
     public String refresh() {
+        logger.info("[CONTROLLER] refresh");
         return "redirect:/console";
     }
 
     /**
      * Загрузка файлов с сервера
      *
-     * @param fileName
-     * @param request
-     * @param userView
-     * @return
+     * @param fileName - имя файла
+     * @param request - предоставления информации запроса для сервлетов HTTP
+     * @param userView - получение текущего пользователя
+     * @return возврат списка объектов ResponseEntity<Resource>
      */
     @GetMapping("/downloadFile/{fileName:.+}")
     @ResponseBody
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request,
                                                  @AuthenticationPrincipal UserView userView) {
+        logger.info("[CONTROLLER] downloadFile");
         Resource resource = storageFileService.loadFileAsResource(fileName, userView);
 
         String contentType = null;
         try {
             contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
         } catch (IOException ex) {
-            throw new RuntimeException("Could not determine file type.");
+            logger.error("[CONTROLLER] Could not determine file type");
+            throw new RuntimeException("Could not determine file type");
         }
 
         if (contentType == null) {
@@ -158,19 +171,21 @@ public class ConsoleController {
 
     @GetMapping("/operationFiles")
     public String getOperationFiles() {
+        logger.info("[CONTROLLER] getOperationFiles");
         return "console";
     }
 
     /**
      * Удаления файлов
      *
-     * @param searchValues
-     * @param userView
-     * @return
+     * @param searchValues - получить список файлов
+     * @param userView - получение текущего пользователя
+     * @return переход на страницу console
      */
     @RequestMapping(value = "/operationFiles", method = RequestMethod.POST, params = "deleteFls")
     public String postDeleteFiles(@RequestParam List<String> searchValues,
                                   @AuthenticationPrincipal UserView userView) {
+        logger.info("[CONTROLLER] postDeleteFiles");
         if (searchValues != null && searchValues.size() > 0) {
             storageFileService.deleteFiles(searchValues, userView);
             return "redirect:/console";
@@ -181,10 +196,11 @@ public class ConsoleController {
     /**
      * Обработка списка загрузки файлов
      *
-     * @return
+     * @return переход на страницу console
      */
     @RequestMapping(value = "/operationFiles", method = RequestMethod.POST, params = "downloadFls")
     public String postDownloadFiles() {
+        logger.info("[CONTROLLER] postDownloadFiles");
         return "redirect:/console";
     }
 

@@ -1,5 +1,6 @@
 package ru.msaitov.service.storageFile;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -32,13 +33,16 @@ public class StorageFileServiceImpl implements StorageFileService {
 
     private final Mapper mapper;
 
+    private static Logger logger;
+
     @Value("${file.upload-dir}")
     private String pathCommon;
 
     @Autowired
-    public StorageFileServiceImpl(UserRepository userRepository, Mapper mapper) {
+    public StorageFileServiceImpl(UserRepository userRepository, Mapper mapper, Logger logger) {
         this.userRepository = userRepository;
         this.mapper = mapper;
+        StorageFileServiceImpl.logger = logger;
     }
 
     /**
@@ -46,6 +50,7 @@ public class StorageFileServiceImpl implements StorageFileService {
      */
     @Override
     public void deleteFiles(List<String> listFiles, UserView userView) {
+        logger.info("[SERVICE] deleteFiles");
         for (String listFile : listFiles) {
             File file = new File(getLocationFolder(userView) + "\\" + listFile);
             file.delete();
@@ -57,6 +62,7 @@ public class StorageFileServiceImpl implements StorageFileService {
      */
     @Override
     public Path getLocationFolder(UserView userView) {
+        logger.info("[SERVICE] getLocationFolder");
         String idString = userView.getId().toString();
         Path folder = Paths.get(pathCommon, idString).toAbsolutePath().normalize();
 
@@ -72,6 +78,7 @@ public class StorageFileServiceImpl implements StorageFileService {
      */
     @Override
     public List<String> getListFiles(UserView userView) {
+        logger.info("[SERVICE] getListFiles");
         Path userFolder = getLocationFolder(userView);
         File folder = new File(userFolder.toString());
         File[] arrayOfFiles = folder.listFiles();
@@ -90,12 +97,16 @@ public class StorageFileServiceImpl implements StorageFileService {
      */
     @Override
     public String storeFile(MultipartFile file, UserView userView) {
-
+        logger.info("[SERVICE] storeFile");
         Path userFolder = getLocationFolder(userView);
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-
+        if (fileName == null || fileName.equals("")) {
+            logger.error("[SERVICE] Sorry! File not found");
+            throw new FileStorageException("Sorry! File not found");
+        }
         try {
             if (fileName.contains("..")) {
+                logger.error("[SERVICE] Sorry! Filename contains invalid path sequence " + fileName);
                 throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
             }
             Path targetLocation = userFolder.resolve(fileName);
@@ -103,6 +114,7 @@ public class StorageFileServiceImpl implements StorageFileService {
 
             return fileName;
         } catch (IOException ex) {
+            logger.error("[SERVICE] Could not store file " + fileName + ". Please try again!", ex);
             throw new FileStorageException("Could not store file " + fileName + ". Please try again!", ex);
         }
     }
@@ -112,17 +124,24 @@ public class StorageFileServiceImpl implements StorageFileService {
      */
     @Override
     public Resource loadFileAsResource(String fileName, UserView userView) {
+        logger.info("[SERVICE] loadFileAsResource");
         try {
             Path userFolder = getLocationFolder(userView);
+            if (fileName == null || fileName.equals("")) {
+                logger.error("[SERVICE] File not found " + fileName);
+                throw new MyFileNotFoundException("[SERVICE] File not found ");
+            }
             Path filePath = userFolder.resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
             if (resource.exists()) {
                 return resource;
             } else {
+                logger.error("[SERVICE] File not found " + fileName);
                 throw new MyFileNotFoundException("File not found " + fileName);
             }
         } catch (MalformedURLException ex) {
-            throw new MyFileNotFoundException("File not found " + fileName, ex);
+            logger.error("[SERVICE] File not found " + fileName, ex);
+            throw new MyFileNotFoundException("[SERVICE] File not found " + fileName, ex);
         }
     }
 }

@@ -1,5 +1,6 @@
 package ru.msaitov.service.userAccessRequest;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,6 @@ import ru.msaitov.view.UserView;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,14 +31,17 @@ public class UserAccessRequestImpl implements UserAccessRequest {
 
     private final StorageFileService storageFileService;
 
-    private Map<UserView, DtoOutListFiles> listFiles = new HashMap<>();
+    private static Logger logger;
+    private Map<UserView, DtoOutListFiles> listFiles;
 
     @Autowired
-    public UserAccessRequestImpl(UserRepository userRepository, AccessRepository accessRepository, Mapper mapper, StorageFileService storageFileService) {
+    public UserAccessRequestImpl(UserRepository userRepository, AccessRepository accessRepository, Mapper mapper, StorageFileService storageFileService, Logger logger, Map<UserView, DtoOutListFiles> listFiles) {
         this.userRepository = userRepository;
         this.accessRepository = accessRepository;
         this.mapper = mapper;
         this.storageFileService = storageFileService;
+        this.listFiles = listFiles;
+        UserAccessRequestImpl.logger = logger;
     }
 
     /**
@@ -46,6 +49,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public UserView getUserViewByEmail(String email) {
+        logger.info("[SERVICE] getUserViewByEmail");
         return mapper.map(userRepository.findByEmail(email));
     }
 
@@ -54,6 +58,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public UserView getUserViewById(Long id) {
+        logger.info("[SERVICE] getUserViewById");
         Optional<UserEntity> optionalUserEntity = userRepository.findById(id);
         UserEntity userEntity = null;
         if (optionalUserEntity.isPresent()) {
@@ -67,6 +72,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public DtoOutListFiles getListFiles(UserView userRequest) {
+        logger.info("[SERVICE] getListFiles");
         DtoOutListFiles dtoOutListFiles = this.listFiles.get(userRequest);
         return dtoOutListFiles;
     }
@@ -76,7 +82,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public void userStatusRequested(List<String> listViewUser, UserView userRequest) {
-
+        logger.info("[SERVICE] userStatusRequested");
         DtoOutListFiles dtoOutListFiles = new DtoOutListFiles();
         dtoOutListFiles.setListFiles(Collections.emptyList());
         dtoOutListFiles.setStatusAccess(StatusAccess.ACCESS_DENIED);
@@ -105,6 +111,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public UserEntity getOwner(List<String> listViewUser) {
+        logger.info("[SERVICE] getOwner");
         if (listViewUser == null) {
             return null;
         }
@@ -119,6 +126,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public void deleteRequest(List<String> listDelete, UserView userRequest) {
+        logger.info("[SERVICE] deleteRequest");
         List<String> emails = clearEmail(listDelete);
         for (String email : emails) {
             UserEntity userDelete = userRepository.findByEmail(email);
@@ -133,6 +141,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public List<String> getAllAccessUser(UserView userView) {
+        logger.info("[SERVICE] getAllAccessUser");
         UserEntity userAccessRequest = mapper.map(userView);
         List<UserAccessEntity> userAccessEntities = accessRepository.filterByUserAccess(userAccessRequest.getId());
         List<String> userOwnEmails = new ArrayList<>();
@@ -150,6 +159,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public List<String> getAllEnabledUser(UserView userViewExclude) {
+        logger.info("[SERVICE] getAllEnabledUser");
         List<UserEntity> userEntityList = userRepository.findAll();
         List<String> userViewListEmail = new ArrayList<>();
         for (UserEntity userEntity : userEntityList) {
@@ -170,6 +180,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public void sendRequest(List<String> owners, UserView userRequest, String downloadAccess) {
+        logger.info("[SERVICE] sendRequest");
         if (owners.size() <= 1) {
             return;
         }
@@ -196,7 +207,8 @@ public class UserAccessRequestImpl implements UserAccessRequest {
 
     }
 
-    private List<String> clearEmail(List<String> emails) {
+    public List<String> clearEmail(List<String> emails) {
+        logger.info("[SERVICE] clearEmail");
         List<String> emailsClear = new ArrayList<>();
         for (String email : emails) {
 

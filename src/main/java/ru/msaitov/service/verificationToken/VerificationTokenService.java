@@ -8,8 +8,8 @@ public interface VerificationTokenService {
     /**
      * Проверка токена
      *
-     * @param token
-     * @return
+     * @param token - токен
+     * @return состояние токена
      */
     TokenState validateVerificationToken(String token);
 }
