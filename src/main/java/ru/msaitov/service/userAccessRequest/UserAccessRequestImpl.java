@@ -50,7 +50,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public UserView getUserViewByEmail(String email) {
-        logger.info("[SERVICE] method: getUserViewByEmail, Получить пользователя по email");
+        logger.info("Получить пользователя по email = {}", email);
         return mapper.map(userRepository.findByEmail(email));
     }
 
@@ -59,7 +59,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public UserView getUserViewById(Long id) {
-        logger.info("[SERVICE] method: getUserViewById, Получить пользователя по id");
+        logger.info("Получить пользователя по id = {}", id);
         Optional<UserEntity> optionalUserEntity = userRepository.findById(id);
         UserEntity userEntity = null;
         if (optionalUserEntity.isPresent()) {
@@ -73,7 +73,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public DtoOutListFiles getListFiles(UserView userRequest) {
-        logger.info("[SERVICE] method: getListFiles, Получить список файлов другого пользователя");
+        logger.info("Для пользователя: {}, получить список файлов другого пользователя. ", userRequest.getEmail());
         DtoOutListFiles dtoOutListFiles = this.listFiles.get(userRequest);
         return dtoOutListFiles;
     }
@@ -83,7 +83,6 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public void userStatusRequested(List<String> listViewUser, UserView userRequest) {
-        logger.info("[SERVICE] method: userStatusRequested, Обработка статус доступа");
         DtoOutListFiles dtoOutListFiles = new DtoOutListFiles();
         dtoOutListFiles.setListFiles(Collections.emptyList());
         dtoOutListFiles.setStatusAccess(StatusAccess.ACCESS_DENIED);
@@ -92,6 +91,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
         if (userOwner == null) {
             return;
         }
+        logger.info("Из аккуанта: {}, установить список файлов владельца: {}", userRequest.getEmail(), userOwner.getEmail());
         UserEntity userRequestEntity = mapper.map(userRequest);
         Long id = accessRepository.idByUserOwnAndUserAccess(userOwner.getId(), userRequestEntity.getId());
         UserAccessEntity userAccessEntity = accessRepository.getOne(id);
@@ -112,13 +112,14 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public UserEntity getOwner(List<String> listViewUser) {
-        logger.info("[SERVICE] method: getOwner, Получить владельца");
+        logger.info("Получить владельца из списка: {}", listViewUser);
         if (listViewUser == null) {
             return null;
         }
         List<String> emails = clearEmail(listViewUser);
         String email = emails.get(0);
         UserEntity userOwner = userRepository.findByEmail(email);
+        logger.info("Владелец: {}", userOwner.getEmail());
         return userOwner;
     }
 
@@ -127,7 +128,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public void deleteRequest(List<String> listDelete, UserView userRequest) {
-        logger.info("[SERVICE] method: deleteRequest, Удалить запрос");
+        logger.info("Для аккаунта: {}, удалить запросы {}", userRequest.getEmail(), listDelete);
         List<String> emails = clearEmail(listDelete);
         for (String email : emails) {
             UserEntity userDelete = userRepository.findByEmail(email);
@@ -142,7 +143,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public List<String> getAllAccessUser(UserView userView) {
-        logger.info("[SERVICE] method: getAllAccessUser, Получить список всез пользователей которые сделали запрос");
+        logger.info("Для аккаунта: {}, получить список всех пользователей которые сделали запрос", userView.getEmail());
         UserEntity userAccessRequest = mapper.map(userView);
         List<UserAccessEntity> userAccessEntities = accessRepository.filterByUserAccess(userAccessRequest.getId());
         List<String> userOwnEmails = new ArrayList<>();
@@ -151,6 +152,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
             ownEmail += " - " + userAccessEntity.getStatusAccess().getStatus();
             userOwnEmails.add(ownEmail);
         }
+        logger.info("Список пользователей: {}", userOwnEmails);
         return userOwnEmails;
     }
 
@@ -160,7 +162,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public List<String> getAllEnabledUser(UserView userViewExclude) {
-        logger.info("[SERVICE] method: getAllEnabledUser, Получить список всех активных пользователй");
+        logger.info("Для аккаунта: {}, получить список всех активированных пользователей", userViewExclude.getEmail());
         List<UserEntity> userEntityList = userRepository.findAll();
         List<String> userViewListEmail = new ArrayList<>();
         for (UserEntity userEntity : userEntityList) {
@@ -173,6 +175,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
                 userViewListEmail.add(userEntity.getEmail());
             }
         }
+        logger.info("Список пользователей: {}", userViewListEmail);
         return userViewListEmail;
     }
 
@@ -181,7 +184,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      */
     @Override
     public void sendRequest(List<String> owners, UserView userRequest, String downloadAccess) {
-        logger.info("[SERVICE] method: sendRequest, Послать запрос");
+        logger.info("Аккаунт: {}, послал запрос на доступ у пользователей: {}, со статусом скачивания: {}", userRequest.getEmail(), owners, downloadAccess);
         if (owners.size() <= 1) {
             return;
         }
@@ -209,7 +212,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
     }
 
     public List<String> clearEmail(List<String> emails) {
-        logger.info("[SERVICE] method: clearEmail");
+        logger.info("Получить список email из строки: {}", emails);
         List<String> emailsClear = new ArrayList<>();
         for (String email : emails) {
 
@@ -217,6 +220,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
             String eMail = elements[0];
             emailsClear.add(eMail);
         }
+        logger.info("Список email: {}", emailsClear);
         return emailsClear;
     }
 

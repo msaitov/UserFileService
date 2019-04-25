@@ -48,9 +48,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void registerNewUserAccount(final UserView userView, final String url) throws UserAlreadyExistException {
-        logger.info("[SERVICE] method: registerNewUserAccount, Регистрация нового пользователя");
+        logger.info("Регистрация нового пользователя: {}", userView.getEmail());
         if (emailExists(userView.getEmail())) {
-            logger.error("User Already Exist");
+            logger.error("Пользователь: {}, уже существует", userView.getEmail());
             throw new UserAlreadyExistException();
         }
 
@@ -70,10 +70,10 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        logger.info("[SERVICE] method: loadUserByUsername, Получить пользователя по имени");
+        logger.info("Получить UserDetails пользователя по имени: {}", username);
         UserEntity userEntity = userRepository.findByEmail(username);
         if (userEntity == null) {
-            logger.error("User not found");
+            logger.error("Пользователь с именем: {}, не найден", username);
             throw new UsernameNotFoundException("User not found");
 
         }
@@ -82,23 +82,23 @@ public class UserServiceImpl implements UserService {
     }
 
     void saveUser(UserEntity userEntity) {
-        logger.info("[SERVICE] method: saveUser, сохранить пользователя");
+        logger.info("Сохранить пользователя: ", userEntity.getEmail());
         userRepository.save(userEntity);
     }
 
     private void saveToken(String token, UserEntity userEntity) {
-        logger.info("[SERVICE] method: saveToken, сохранить токен");
+        logger.info("Cохранить токен: {}, пользователя: {}", token, userEntity.getEmail());
         final VerificationToken myToken = new VerificationToken(token, userEntity);
         tokenRepository.save(myToken);
     }
 
     private void sendEmail(UserView userView, String url, String token) {
-        logger.info("[SERVICE] method: sendEmail, послать email");
+        logger.info("Послать на email пользователю: {}, токен: {}, для активации", userView.getEmail(), token);
         emailService.send(userView, url, token);
     }
 
     private boolean emailExists(final String email) {
-        logger.info("[SERVICE] method: emailExists, проверка существования email");
+        logger.info("Проверка существования email в БД: {}", email);
         return userRepository.findByEmail(email) != null;
     }
 }

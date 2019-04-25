@@ -36,20 +36,20 @@ public class RoleController {
     }
 
     /**
-     * Получить список всех пользователей
+     * Получить список всех пользователей c правами доступа
      *
      * @param model - передача параметров в фронт
      * @return переход на страницу userRole
      */
     @GetMapping("/userRole")
     public String getUserRole(Model model) {
-        logger.info("[CONTROLLER] method: getUserRole, Получить список всех пользователей");
+        logger.info("Получить список всех пользователей c правами доступа");
         model.addAttribute("users", userAccess.getAllUser());
         return "userRole";
     }
 
     /**
-     * Получить Id пользователя
+     * Редактировать роль пользователя
      *
      * @param userId - id пользователя
      * @param model - передача параметров в фронт
@@ -57,15 +57,15 @@ public class RoleController {
      */
     @GetMapping("/userRole/{userId}")
     public String getUserRole(@PathVariable Long userId, Model model) {
-        logger.info("[CONTROLLER] method: getUserRole, Получить Id пользователя");
         UserView userView = userAccess.getUserViewById(userId);
+        logger.info("Редактировать роль пользователя: {}", userView.getEmail());
         model.addAttribute("user", userView);
         model.addAttribute("roles", Role.values());
         return "userEdit";
     }
 
     /**
-     * Обработка кнопки Сохранить измененные Права доступа
+     * Обработка кнопки Сохранить измененные роль пользователя
      *
      * @param email - email пользователя
      * @param form - Role
@@ -77,9 +77,9 @@ public class RoleController {
             @RequestParam Map<String, String> form,
             @RequestParam("userId") Long userId) {
 
-        logger.info("[CONTROLLER] method: postUserRole, Обработка кнопки Сохранить измененные Права доступа");
         UserView userView = userAccess.getUserViewById(userId);
         userView.setEmail(email);
+        logger.info("Обработка кнопки Сохранить измененные роль пользователя {}", email);
 
         Set<String> roles = Arrays.stream(Role.values())
                 .map(Role::name)
@@ -90,6 +90,7 @@ public class RoleController {
         for (String key : form.keySet()) {
             if (roles.contains(key)) {
                 userView.getRoles().add(Role.valueOf(key));
+                logger.info("Новая роль: {}, пользователя: {}", Role.valueOf(key), email);
             }
         }
 

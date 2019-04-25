@@ -47,7 +47,6 @@ public class UserControllerTest {
     public void postRegistrationUserAlreadyExistsTest() throws Exception {
         mockMvc.perform(post("/registration").param("email", "vasy@mail.ru").param("password", "123"))
                 .andDo(print())
-                //.andExpect(redirectedUrl("/"))
                 .andExpect(content().string(containsString("Регистрация с данным email невозможно, т.к. пользователь уже существует")));
     }
 

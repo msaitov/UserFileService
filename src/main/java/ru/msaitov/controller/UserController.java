@@ -41,7 +41,7 @@ public class UserController {
      */
     @GetMapping("/")
     public String redirecLogin() {
-        logger.info("[CONTROLLER] method: redirecLogin, Перенаправление на страницу console");
+        logger.info("Перенаправление на страницу console");
         return "redirect:/console";
     }
 
@@ -52,7 +52,7 @@ public class UserController {
      */
     @GetMapping("/registration")
     public String getRegistration() {
-        logger.info("[CONTROLLER] getRegistration, Регистрация");
+        logger.info("Страница registration");
         return "registration";
     }
 
@@ -65,13 +65,14 @@ public class UserController {
      */
     @PostMapping("/registration")
     public String postRegistration(@ModelAttribute UserView userView, final HttpServletRequest request) {
-        logger.info("[CONTROLLER] method: postRegistration, Обработка формы регистрации");
+        logger.info("Обработка формы регистрации для пользователя: {}", userView.getEmail());
         if (userView.getEmail().isEmpty() || userView.getPassword().isEmpty()) {
             return "registration";
         }
         try {
             userService.registerNewUserAccount(userView, getAppUrl(request));
         } catch (UserAlreadyExistException e) {
+            logger.info("Пользователь: {}, уже существует", userView.getEmail());
             return "userAlreadyExist";
         }
         return "registrationConfirm/registrationConfirmBegin";
@@ -85,19 +86,22 @@ public class UserController {
      */
     @GetMapping(value = "/registrationConfirm*")
     public String confirmRegistration(@RequestParam("token") final String token) {
-        logger.info("[CONTROLLER] method: confirmRegistration, Обработка ссылки для активации пользователя");
+        logger.info("Обработка ссылки для активации пользователя.");
         final TokenState tokenState = tokenService.validateVerificationToken(token);
         switch (tokenState) {
             case TOKEN_INVALID:
+                logger.info("Токен: {}, недействителен", token);
                 return "registrationConfirm/registrationConfirmInvalid";
             case TOKEN_EXPIRED:
+                logger.info("Токен: {}, срок действия истек", token);
                 return "registrationConfirm/registrationConfirmExpired";
         }
+        logger.info("Токен: {}, регистрация подтверждена", token);
         return "registrationConfirm/registrationConfirmValid";
     }
 
     private String getAppUrl(HttpServletRequest request) {
-        logger.info("[CONTROLLER] method: getAppUrl");
+        logger.info("Формирование ссылки для активации токена");
         return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
     }
 }

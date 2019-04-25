@@ -37,11 +37,11 @@ public interface StorageFileService {
     List<String> getListFiles(UserView userView);
 
     /**
-     * Сохранить файлы
+     * Сохранить файл
      *
      * @param file - файл
      * @param userView - текущий пользователь
-     * @return список имен файлов
+     * @return имя файла
      */
     String storeFile(MultipartFile file, UserView userView);
 

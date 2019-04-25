@@ -48,14 +48,15 @@ public class AdminServiceImpl implements AdminService {
      */
     @Override
     public List<String> getAllEnabledUser(UserView userViewExclude) {
-        logger.info("[SERVICE] method: getAllEnabledUser, Получить список все активированныз пользователей");
         List<UserEntity> userEntityList = userRepository.findAll();
         List<String> userViewListEmail = new ArrayList<>();
+        logger.info("Для акканута: {}, Получить список все активированных пользователей.", userViewExclude.getEmail());
         for (UserEntity userEntity : userEntityList) {
             if (!userEntity.getEmail().equals(userViewExclude.getEmail())) {
                 userViewListEmail.add(userEntity.getEmail());
             }
         }
+        logger.info("Список пользователей: {}", userViewListEmail);
         return userViewListEmail;
     }
 
@@ -64,7 +65,7 @@ public class AdminServiceImpl implements AdminService {
      */
     @Override
     public void setListFiles(List<String> listViewUser, UserView userRequest) {
-        logger.info("[SERVICE] method: setListFiles, Установить список файлов");
+
         DtoOutListFiles dtoOutListFiles = new DtoOutListFiles();
         dtoOutListFiles.setListFiles(Collections.emptyList());
         listFiles.put(userRequest, dtoOutListFiles);
@@ -72,7 +73,7 @@ public class AdminServiceImpl implements AdminService {
         if (userOwner == null) {
             return;
         }
-
+        logger.info("Установить список владельца файлов: {}, для аккаунта: {}", userOwner.getEmail(), userRequest.getEmail());
         UserView userViewOwner = mapper.map(userOwner);
         List<String> listFiles = storageFileService.getListFiles(userViewOwner);
         dtoOutListFiles.setListFiles(listFiles);
@@ -86,7 +87,7 @@ public class AdminServiceImpl implements AdminService {
      */
     @Override
     public DtoOutListFiles getListFiles(UserView userRequest) {
-        logger.info("[SERVICE] method: getListFiles, Получить список файлов");
+        logger.info("Получить список файлов для аккаунта: {}", userRequest.getEmail());
         DtoOutListFiles dtoOutListFiles = this.listFiles.get(userRequest);
         return dtoOutListFiles;
     }

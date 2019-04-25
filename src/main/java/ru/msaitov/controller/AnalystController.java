@@ -35,7 +35,7 @@ public class AnalystController {
     }
 
     /**
-     * Просмотр списка всех пользователей
+     * Обработка кнопки Просмотр статистики
      *
      * @param listUserEmail - получение email пользователей
      * @param userRequest - текущий пользователь который делает запрос
@@ -44,7 +44,7 @@ public class AnalystController {
      */
     @RequestMapping(value = "/allListUser", method = RequestMethod.POST, params = "viewStatistics")
     public String postStatistics(@RequestParam List<String> listUserEmail, @AuthenticationPrincipal UserView userRequest, Model model) {
-        logger.info("[CONTROLLER] method: postStatistics, Просмотр списка всех пользователей");
+        logger.info("Обработка кнопки Просмотр статистики у пользователей: {}, для авторизированного пользователя: {}", listUserEmail, userRequest.getEmail());
         statisticService.setStatistics(listUserEmail, userRequest);
         return "redirect:/statistics";
     }
@@ -59,10 +59,10 @@ public class AnalystController {
     @GetMapping("/statistics")
     public String getViewStatisticFiles(@AuthenticationPrincipal UserView userRequest,
                                         Model model) {
-        logger.info("[CONTROLLER] method: getViewStatisticFiles, Получение статистики пользователя");
         DtoOutListFiles dtoOutListFiles = statisticService.getStatistics(userRequest);
         List<ViewStatistic> listFiles = dtoOutListFiles.getListStatistic();
         String email = dtoOutListFiles.getEmail();
+        logger.info("Получение статистики для пользователя: {}, у пользователя: {}", userRequest.getEmail(), email);
         model.addAttribute("files", listFiles);
         model.addAttribute("emailOwner", email);
         model.addAttribute("numberOfFiles", listFiles.size());

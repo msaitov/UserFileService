@@ -67,7 +67,7 @@ public class UserAccessRequestImplTest extends MockInit {
 
     @Test
     public void getOwnerTest() {
-
+        when(userRepository.findByEmail(listViewUser.get(0))).thenReturn(userEntity);
         userAccessRequestSpy.getOwner(listViewUser);
         verify(userRepository, times(1)).findByEmail(any());
     }

@@ -1,6 +1,5 @@
 package ru.msaitov.service.userAccessRequest;
 
-import org.springframework.transaction.annotation.Transactional;
 import ru.msaitov.model.DownloadedStatisticEntity;
 import ru.msaitov.model.StatusAccess;
 import ru.msaitov.view.ViewStatistic;
@@ -8,7 +7,6 @@ import ru.msaitov.view.ViewStatistic;
 import java.util.ArrayList;
 import java.util.List;
 
-@Transactional
 public class DtoOutListFiles {
 
     private List<String> listFiles;

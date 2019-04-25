@@ -53,7 +53,7 @@ public class DownloadedStatisticServiceImpl implements DownloadedStatisticServic
      */
     @Override
     public void incDownload(UserView userView, String fileName) {
-        logger.info("[SERVICE] method: incDownload, Инкремент статистики файла");
+        logger.info("Для аккаунта: {}, увеличить инкремент для файла: {}", userView.getEmail(), fileName);
         UserEntity userEntity = userRepository.getOne(userView.getId());
         DownloadedStatisticEntity statisticEntity = statisticRepository.findByFilenameAndUserEntity(fileName, userEntity.getId());
         if (statisticEntity != null) {
@@ -74,7 +74,7 @@ public class DownloadedStatisticServiceImpl implements DownloadedStatisticServic
      */
     @Override
     public DtoOutListFiles getStatistics(UserView userRequest) {
-        logger.info("[SERVICE] method: getStatistics, Получить статистику");
+        logger.info("Получить статистику для аккаунта: {}", userRequest.getEmail());
         DtoOutListFiles dtoOutListFiles = this.listStatistics.get(userRequest);
         return dtoOutListFiles;
     }
@@ -84,7 +84,6 @@ public class DownloadedStatisticServiceImpl implements DownloadedStatisticServic
      */
     @Override
     public void setStatistics(List<String> listViewUser, UserView userView) {
-        logger.info("[SERVICE] method: setStatistics, Установить статистику");
         DtoOutListFiles dtoOutListFiles = new DtoOutListFiles();
         dtoOutListFiles.setListStatistic(Collections.emptyList());
         listStatistics.put(userView, dtoOutListFiles);
@@ -92,6 +91,7 @@ public class DownloadedStatisticServiceImpl implements DownloadedStatisticServic
         if (userOwner == null) {
             return;
         }
+        logger.info("Из аккуанта: {}, установить статистику владельца: {}", userView.getEmail(), userOwner.getEmail());
         UserView userViewOwner = mapper.map(userOwner);
         List<String> listFiles = storageFileService.getListFiles(userViewOwner);
         List<DownloadedStatisticEntity> statisticEntities = new ArrayList<>();

@@ -87,7 +87,7 @@ public class AdminControllerTest extends General {
         boolean exists = tempFile.exists();
         assertTrue(!exists);
 
-        //deleteFolder(dir);
+        deleteFolder(dir);
 
 
     }

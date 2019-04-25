@@ -58,8 +58,8 @@ public class RequestController {
      */
     @GetMapping("/requestAccess")
     public String getRequestAccess(@AuthenticationPrincipal UserView userRequest, Model model) {
-        logger.info("[CONTROLLER] method: getRequestAccess, Запросить доступ");
         List<String> ownEmails = userAccessRequest.getAllAccessUser(userRequest);
+        logger.info("Пользователь: {}, запрашивает доступ у других пользователей: {}", userRequest.getEmail(), ownEmails);
         model.addAttribute("listUserAccess", ownEmails);
         return "access/requestAccess";
     }
@@ -75,8 +75,8 @@ public class RequestController {
     @GetMapping("/viewFiles")
     public String getViewFiles(@AuthenticationPrincipal UserView userRequest,
                                Model model) {
-        logger.info("[CONTROLLER] method: getViewFiles, Просмотр файлов другого пользователя");
         DtoOutListFiles dtoOutListFiles = userAccessRequest.getListFiles(userRequest);
+        logger.info("Пользователь: {}, просматривает файлы у другого пользователя.", userRequest.getEmail());
         StatusAccess statusAccess = StatusAccess.ACCESS_DENIED;
         List<String> listFiles = null;
         String email = null;
@@ -89,15 +89,18 @@ public class RequestController {
         }
         if (statusAccess.equals(StatusAccess.ACCESS_DENIED)) {
             model.addAttribute("messageDenied", "Доступ закрыт");
+            logger.info("Для Пользователя: {}, доступ на просмотр файлов - закрыт", userRequest.getEmail());
             return "access/viewFiles";
         }
         if (listFiles.isEmpty()) {
             model.addAttribute("messageDenied", "Файлы отсутствуют");
+            logger.info("У текущего пользователя: {}, файлы отсутствуют", email);
             return "access/viewFiles";
         }
         if (statusAccess.equals(StatusAccess.ACCESS_ALLOWED_VD)) {
             model.addAttribute("downloadAccess", "true");
         }
+        logger.info("Список файлов: {}", listFiles);
         model.addAttribute("listFiles", listFiles);
         model.addAttribute("emailOwner", email);
         model.addAttribute("idOwner", id);
@@ -116,7 +119,7 @@ public class RequestController {
      */
     @RequestMapping(value = "/operationRequest", method = RequestMethod.POST, params = "viewFiles")
     public String postOperationRequest(@RequestParam List<String> listUserAccessValues, @AuthenticationPrincipal UserView userRequest, Model model) {
-        logger.info("[CONTROLLER] postOperationRequest, Обработка кнопки: Просмотр файлов");
+        logger.info("Обработка кнопки, просмотр файлов пользователя: {}", listUserAccessValues);
         userAccessRequest.userStatusRequested(listUserAccessValues, userRequest);
         return "redirect:/viewFiles";
     }
@@ -130,8 +133,8 @@ public class RequestController {
      */
     @GetMapping("/listUserRequest")
     public String getListUserRequest(Model model, @AuthenticationPrincipal UserView userEntityExclude) {
-        logger.info("[CONTROLLER] getListUserRequest, Список пользователей, для запроса на просмотр или скачивание файлов");
         List<String> userListEnabledEmail = userAccessRequest.getAllEnabledUser(userEntityExclude);
+        logger.info("Для аккаунта: {}, вывести список пользователей: {}", userEntityExclude.getEmail(), userListEnabledEmail);
         int userCount = userListEnabledEmail.size();
         model.addAttribute("requestAccessSend", userListEnabledEmail);
         model.addAttribute("userCount", userCount);
@@ -140,7 +143,7 @@ public class RequestController {
 
 
     /**
-     * Обработка кнопки: удалить запрос
+     * Обработка кнопки: "удалить запрос"
      *
      * @param listUserAccessValues - список пользователей
      * @param userRequest - получение текущего пользователя
@@ -149,7 +152,7 @@ public class RequestController {
     @RequestMapping(value = "/operationRequest", method = RequestMethod.POST, params = "deleteRequests")
     public String postOperationRequest(@RequestParam List<String> listUserAccessValues,
                                        @AuthenticationPrincipal UserView userRequest) {
-        logger.info("[CONTROLLER] postOperationRequest, Обработка кнопки: удалить запрос");
+        logger.info("Обработка кнопки \"удалить запрос\", аккаунта {}, на удаление запросов: {}", userRequest.getEmail(), listUserAccessValues);
         userAccessRequest.deleteRequest(listUserAccessValues, userRequest);
         return "redirect:/requestAccess";
     }
@@ -166,7 +169,7 @@ public class RequestController {
     public String PostRequestAccessAction(@RequestParam List<String> requestAccessValue,
                                           @AuthenticationPrincipal UserView userRequest,
                                           String downloadAccess) {
-        logger.info("[CONTROLLER] PostRequestAccessAction, Обработка формы: сделать запрос");
+        logger.info("От аккаунта: {}, сделать запрос на доступ у пользователей: {}", userRequest.getEmail(), requestAccessValue);
         if (requestAccessValue == null) {
             return "access/listUser";
         }
@@ -187,15 +190,15 @@ public class RequestController {
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName,
                                                  @PathVariable Long id,
                                                  HttpServletRequest request) {
-        logger.info("[CONTROLLER] method: downloadFile, Скачать файл у другого пользователя");
         UserView userView = userAccessRequest.getUserViewById(id);
+        logger.info("Скачать файл: {}, у пользователя: {}", fileName, userView.getEmail());
         Resource resource = storageFileService.loadFileAsResource(fileName, userView);
 
         String contentType = null;
         try {
             contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
         } catch (IOException ex) {
-            logger.error("[CONTROLLER] Could not determine file type");
+            logger.error("Could not determine file type");
             throw new RuntimeException("Could not determine file type.", ex);
         }
 

@@ -59,8 +59,8 @@ public class ConsoleController {
      */
     @GetMapping("/console")
     public String getConsole(Model model, @AuthenticationPrincipal UserView userView) {
-        logger.info("[CONTROLLER] getConsole, Главная консоль программы");
         List<String> listFiles = storageFileService.getListFiles(userView);
+        logger.info("Вывод главной консоли программы пользователя: {}, со списоком файлов: {}", userView.getEmail(), listFiles);
         model.addAttribute("listFiles", listFiles);
         if (userView.getRoles().contains(Role.ANALYST)) {
             model.addAttribute("role", "analyst");
@@ -69,12 +69,6 @@ public class ConsoleController {
             model.addAttribute("role", "admin");
         }
 
-        return "console";
-    }
-
-    @PostMapping("/console")
-    public String postConsole() {
-        logger.info("[CONTROLLER] postConsole");
         return "console";
     }
 
@@ -89,9 +83,8 @@ public class ConsoleController {
     @ResponseBody
     public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file,
                                          @AuthenticationPrincipal UserView userView) {
-        logger.info("[CONTROLLER] uploadFile, закачка файла на сервер");
         String fileName = storageFileService.storeFile(file, userView);
-
+        logger.info("Загрузка файла: {} на сервер, пользователя: {}", fileName, userView.getEmail());
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/downloadFile/")
                 .path(fileName)
@@ -113,7 +106,7 @@ public class ConsoleController {
     @ResponseBody
     public List<UploadFileResponse> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files,
                                                         @AuthenticationPrincipal UserView userView) {
-        logger.info("[CONTROLLER] method: uploadMultipleFiles, закачка файлов на сервер");
+        logger.info("Загрузка файлов на сервер пользователя: {}", userView.getEmail());
         List<UploadFileResponse> uploadFileResponses = Arrays.asList(files)
                 .stream()
                 .map(file -> uploadFile(file, userView))
@@ -128,7 +121,7 @@ public class ConsoleController {
      */
     @PostMapping("/refresh")
     public String refresh() {
-        logger.info("[CONTROLLER] method: refresh, Обновить страницу");
+        logger.info("Обновить страницу console");
         return "redirect:/console";
     }
 
@@ -144,7 +137,7 @@ public class ConsoleController {
     @ResponseBody
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request,
                                                  @AuthenticationPrincipal UserView userView) {
-        logger.info("[CONTROLLER] method downloadFile, Загрузка файлов с сервера");
+        logger.info("Загрузка файла: {} с сервера, пользователя: {}", fileName, userView.getEmail());
         Resource resource = storageFileService.loadFileAsResource(fileName, userView);
 
         String contentType = null;
@@ -167,13 +160,6 @@ public class ConsoleController {
                 .body(resource);
     }
 
-
-    @GetMapping("/operationFiles")
-    public String getOperationFiles() {
-        logger.info("[CONTROLLER] method: getOperationFiles");
-        return "console";
-    }
-
     /**
      * Удаления файлов
      *
@@ -184,7 +170,7 @@ public class ConsoleController {
     @RequestMapping(value = "/operationFiles", method = RequestMethod.POST, params = "deleteFls")
     public String postDeleteFiles(@RequestParam List<String> searchValues,
                                   @AuthenticationPrincipal UserView userView) {
-        logger.info("[CONTROLLER] method: postDeleteFiles, Удаления файлов");
+        logger.info("Удаление файлов: {}, пользователя: {}", searchValues, userView.getEmail());
         if (searchValues != null && searchValues.size() > 0) {
             storageFileService.deleteFiles(searchValues, userView);
             return "redirect:/console";
@@ -199,7 +185,7 @@ public class ConsoleController {
      */
     @RequestMapping(value = "/operationFiles", method = RequestMethod.POST, params = "downloadFls")
     public String postDownloadFiles() {
-        logger.info("[CONTROLLER] method: postDownloadFiles, Обработка списка загрузки файлов");
+        logger.info("Обработка списка загрузки файлов");
         return "redirect:/console";
     }
 

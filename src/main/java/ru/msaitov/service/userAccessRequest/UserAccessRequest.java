@@ -36,7 +36,7 @@ public interface UserAccessRequest {
     DtoOutListFiles getListFiles(UserView userRequest);
 
     /**
-     * Обработка статус доступа
+     * Обработка статус доступа и формирование списка файлов другого пользователя
      *
      * @param listViewUser - список пользователей
      * @param userRequest - текущий пользователь

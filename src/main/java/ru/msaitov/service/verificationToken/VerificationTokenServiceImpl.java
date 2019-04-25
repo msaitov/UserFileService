@@ -33,9 +33,10 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
      */
     @Override
     public TokenState validateVerificationToken(String token) {
-        logger.info("[SERVICE] method: validateVerificationToken, Проверка токена");
+        logger.info("Проверка токена: {}", token);
         final VerificationToken verificationToken = tokenRepository.findByToken(token);
         if (verificationToken == null) {
+            logger.info("Токен: {}, недействителен", token);
             return TokenState.TOKEN_INVALID;
         }
 
@@ -44,12 +45,14 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         if ((verificationToken.getExpiryDate().getTime() - cal.getTime().getTime()) <= 0) {
             tokenRepository.delete(verificationToken);
             userRepository.delete(userEntity);
+            logger.info("Токен: {}, время истекло", token);
             return TokenState.TOKEN_EXPIRED;
         }
 
         userEntity.setEnabled(true);
         userRepository.save(userEntity);
         tokenRepository.delete(verificationToken);
+        logger.info("Токен: {}, действителен", token);
         return TokenState.TOKEN_VALID;
     }
 
