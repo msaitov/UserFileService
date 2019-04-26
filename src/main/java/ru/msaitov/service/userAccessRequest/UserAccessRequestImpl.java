@@ -49,6 +49,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public UserView getUserViewByEmail(String email) {
         logger.info("Получить пользователя по email = {}", email);
         return mapper.map(userRepository.findByEmail(email));
@@ -58,6 +59,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public UserView getUserViewById(Long id) {
         logger.info("Получить пользователя по id = {}", id);
         Optional<UserEntity> optionalUserEntity = userRepository.findById(id);
@@ -82,6 +84,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public void userStatusRequested(List<String> listViewUser, UserView userRequest) {
         DtoOutListFiles dtoOutListFiles = new DtoOutListFiles();
         dtoOutListFiles.setListFiles(Collections.emptyList());
@@ -111,6 +114,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public UserEntity getOwner(List<String> listViewUser) {
         logger.info("Получить владельца из списка: {}", listViewUser);
         if (listViewUser == null) {
@@ -142,6 +146,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public List<String> getAllAccessUser(UserView userView) {
         logger.info("Для аккаунта: {}, получить список всех пользователей которые сделали запрос", userView.getEmail());
         UserEntity userAccessRequest = mapper.map(userView);
@@ -161,6 +166,7 @@ public class UserAccessRequestImpl implements UserAccessRequest {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public List<String> getAllEnabledUser(UserView userViewExclude) {
         logger.info("Для аккаунта: {}, получить список всех активированных пользователей", userViewExclude.getEmail());
         List<UserEntity> userEntityList = userRepository.findAll();

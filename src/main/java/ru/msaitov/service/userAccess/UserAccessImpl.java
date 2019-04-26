@@ -50,6 +50,7 @@ public class UserAccessImpl implements UserAccess {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public List<String> requestedAccess(UserView owner) {
         logger.info("Получить для аккаунта: {}, список все пользователей которые сделали запрос", owner.getEmail());
         UserEntity ownerEntity = mapper.map(owner);
@@ -72,6 +73,7 @@ public class UserAccessImpl implements UserAccess {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public List<String> getAllEnabledUser(UserView userViewExclude) {
         logger.info("Получить для аккаунта: {}, список всех активированных пользователей", userViewExclude.getEmail());
         List<UserEntity> userEntityList = userRepository.findAll();
@@ -93,6 +95,7 @@ public class UserAccessImpl implements UserAccess {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public List<UserEntity> getAllUser() {
         logger.info("Получить UserEntity всех пользователей");
         return userRepository.findAll();
@@ -131,6 +134,7 @@ public class UserAccessImpl implements UserAccess {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public List<String> getListEmailAccess(UserView userOwn) {
         logger.info("Для акаунта: {}, получить список всех email пользователя которые сделали запрос", userOwn.getEmail());
         List<UserAccessEntity> listUserAccessEntities = accessRepository.findAll();
@@ -170,6 +174,7 @@ public class UserAccessImpl implements UserAccess {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public void statusChangeAccessDenied(List<String> requestedEmail, UserView userOwn, String typeProcess) {
         logger.info("Аккаент: {}, изменяет статус доступа для пользователей {}, на {}", userOwn.getEmail(), requestedEmail, typeProcess);
         List<String> emails = clearEmail(requestedEmail);
@@ -207,6 +212,7 @@ public class UserAccessImpl implements UserAccess {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public UserView getUserViewById(Long userId) {
         logger.info("Получить пользователя по Id = {}", userId);
         return mapper.map(userRepository.getOne(userId));

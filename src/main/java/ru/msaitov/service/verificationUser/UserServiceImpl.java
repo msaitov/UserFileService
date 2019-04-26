@@ -69,6 +69,7 @@ public class UserServiceImpl implements UserService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         logger.info("Получить UserDetails пользователя по имени: {}", username);
         UserEntity userEntity = userRepository.findByEmail(username);
@@ -86,18 +87,19 @@ public class UserServiceImpl implements UserService {
         userRepository.save(userEntity);
     }
 
-    private void saveToken(String token, UserEntity userEntity) {
+    void saveToken(String token, UserEntity userEntity) {
         logger.info("Cохранить токен: {}, пользователя: {}", token, userEntity.getEmail());
         final VerificationToken myToken = new VerificationToken(token, userEntity);
         tokenRepository.save(myToken);
     }
 
-    private void sendEmail(UserView userView, String url, String token) {
+    void sendEmail(UserView userView, String url, String token) {
         logger.info("Послать на email пользователю: {}, токен: {}, для активации", userView.getEmail(), token);
         emailService.send(userView, url, token);
     }
 
-    private boolean emailExists(final String email) {
+    @Transactional(readOnly = true)
+    boolean emailExists(final String email) {
         logger.info("Проверка существования email в БД: {}", email);
         return userRepository.findByEmail(email) != null;
     }

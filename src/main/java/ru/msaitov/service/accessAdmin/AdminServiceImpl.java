@@ -47,6 +47,7 @@ public class AdminServiceImpl implements AdminService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public List<String> getAllEnabledUser(UserView userViewExclude) {
         List<UserEntity> userEntityList = userRepository.findAll();
         List<String> userViewListEmail = new ArrayList<>();
@@ -64,6 +65,7 @@ public class AdminServiceImpl implements AdminService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public void setListFiles(List<String> listViewUser, UserView userRequest) {
 
         DtoOutListFiles dtoOutListFiles = new DtoOutListFiles();

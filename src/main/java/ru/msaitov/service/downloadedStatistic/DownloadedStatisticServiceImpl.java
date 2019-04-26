@@ -83,6 +83,7 @@ public class DownloadedStatisticServiceImpl implements DownloadedStatisticServic
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public void setStatistics(List<String> listViewUser, UserView userView) {
         DtoOutListFiles dtoOutListFiles = new DtoOutListFiles();
         dtoOutListFiles.setListStatistic(Collections.emptyList());
